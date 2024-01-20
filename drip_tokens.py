@@ -32,14 +32,14 @@ def claim(address=None):
             google_token = get_google_token()
             if not google_token:
                 raise ValueError('获取谷歌结果出错')
-            headers = {'authority': 'artio-80085-faucet-api-recaptcha.berachain.com', 'accept': '*/*',
+            headers = {'authority': 'artio-80085-ts-faucet-api-2.berachain.com', 'accept': '*/*',
                        'accept-language': 'zh-CN,zh;q=0.9', 'authorization': f'Bearer {google_token}',
                        'cache-control': 'no-cache', 'content-type': 'text/plain;charset=UTF-8',
                        'origin': 'https://artio.faucet.berachain.com', 'pragma': 'no-cache',
                        'referer': 'https://artio.faucet.berachain.com/', 'user-agent': user_agent}
 
             params = {'address': claim_address}
-            response = requests.post('https://artio-80085-faucet-api-recaptcha.berachain.com/api/claim', params=params,
+            response = requests.post('https://artio-80085-ts-faucet-api-2.berachain.com/api/claim', params=params,
                                      headers=headers, data=json.dumps(params), proxies=get_ip()).json()
             if 'Txhash' in response['msg'] or 'to the queue' in response['msg']:
                 logger.success(f'{claim_address}:{response}')
