@@ -3,3 +3,4 @@ Faker>=18.13.0
 loguru>=0.7.0
 web3>=6.5.0
 python-dotenv>=1.0.0
+retrying>=1.3.4
