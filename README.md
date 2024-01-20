@@ -1,8 +1,6 @@
-
 # BeraChainTools
 
 BeraChainTools 一个为 BeraChain 生态系统设计的工具集，旨在帮助用户轻松地进行各种交互和操作。
-
 
 ### 安装依赖
 
@@ -36,6 +34,7 @@ pip install -r requirements.txt
   ```
   YesCaptchaClientKey=YOUR_CLIENTKEY_HERE
   ```
+
 #### 3. 设置 MaxWorkers(最大工作线程)
 
 - 在 `.env` 文件中找到 `MaxWorkers` 并填入你想要设置的线程数量。
@@ -44,13 +43,13 @@ pip install -r requirements.txt
   ```
   MaxWorkers=8
   ```
+
 ## 功能和使用方法
 
 ### BeraChain 领水
 
-drip_tokens.py 
+drip_tokens.py
 支持创建地址领水或指定地址领水
-
 
 - **访问链接**：[BeraChain领水](https://artio.faucet.berachain.com/)
 - **状态**：已完成
@@ -70,7 +69,29 @@ bex_swap.py
 - **访问链接**：[honey交互](https://artio.honey.berachain.com)
 - **状态**：待完成
 
+### bend 交互
+
+用于与 BeraChain 的 bend 服务交互。
+
+- **访问链接**：[bend交互](https://artio.bend.berachain.com/)
+- **状态**：待完成
+
+### berps 交互
+
+用于与 BeraChain 的 berps 服务交互。
+
+- **访问链接**：[berps交互](https://artio.berps.berachain.com/)
+- **状态**：待完成
+
+### station 交互
+
+用于与 BeraChain 的 station 服务交互。
+
+- **访问链接**：[station交互](https://artio.station.berachain.com/)
+- **状态**：待完成
+
 ---
 
-感谢使用 BeraChainTools！如有任何问题或建议，请随时通过 [GitHub Issues](https://github.com/ymmmmmmmm/BeraChainTools/issues) 提交。
+感谢使用
+BeraChainTools！如有任何问题或建议，请随时通过 [GitHub Issues](https://github.com/ymmmmmmmm/BeraChainTools/issues) 提交。
 

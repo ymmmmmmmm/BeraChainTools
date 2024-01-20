@@ -5,6 +5,7 @@
 import concurrent.futures
 import os
 import random
+import time
 from typing import Union
 
 from dotenv import load_dotenv
@@ -26,7 +27,7 @@ bex_contract = w3.eth.contract(address=bex_swap_address, abi=bex_abi)
 
 
 @logger.catch
-@retry(stop_max_attempt_number=5, wait_random_min=10000, wait_random_max=30000)
+@retry(stop_max_attempt_number=5, wait_random_min=1000, wait_random_max=5000)
 def bex_swap(address: Union[Address, ChecksumAddress], private_key: Union[bytes, HexStr, int],
              pool_address: Union[Address], asset_out_address: Union[Address, ChecksumAddress]) -> str:
     """
@@ -46,12 +47,12 @@ def bex_swap(address: Union[Address, ChecksumAddress], private_key: Union[bytes,
     txn = bex_contract.functions.batchSwap(kind=0, swaps=[
         dict(poolId=pool_address, assetIn=zero_address, amountIn=value, assetOut=asset_out_address, amountOut=0,
              userData=b'')], deadline=99999999).build_transaction(
-        {'gas': 300000 + random.randint(1, 10000), 'value': value, 'gasPrice': int(w3.eth.gas_price * 1.1),
+        {'gas': 300000 + random.randint(1, 10000), 'value': value, 'gasPrice': int(w3.eth.gas_price * 1.15),
          'nonce': nonce})
     signed_txn = w3.eth.account.sign_transaction(txn, private_key=private_key)
     order_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
     logger.debug(f'{address}:{order_hash.hex()}')
-    order_result = w3.eth.wait_for_transaction_receipt(order_hash, timeout=360)
+    order_result = w3.eth.wait_for_transaction_receipt(order_hash, timeout=120)
     if order_result.status == 1:
         logger.success(f'{address}:{order_hash.hex()}')
     else:
@@ -61,7 +62,7 @@ def bex_swap(address: Union[Address, ChecksumAddress], private_key: Union[bytes,
 
 
 @logger.catch
-@retry(stop_max_attempt_number=5, wait_random_min=10000, wait_random_max=30000)
+@retry(stop_max_attempt_number=5, wait_random_min=1000, wait_random_max=5000)
 def bex_add_liquidity(address: Union[Address, ChecksumAddress], private_key: Union[bytes, HexStr, int],
                       pool_address: Union[Address], asset_in_address: Union[Address]) -> str:
     """
@@ -91,7 +92,7 @@ def bex_add_liquidity(address: Union[Address, ChecksumAddress], private_key: Uni
         ), private_key)
         order_hash = w3.eth.send_raw_transaction(txn.rawTransaction)
         logger.debug(f'{address}:{order_hash.hex()}')
-        order_result = w3.eth.wait_for_transaction_receipt(order_hash, timeout=360)
+        order_result = w3.eth.wait_for_transaction_receipt(order_hash, timeout=120)
         if order_result.status == 1:
             logger.success(f'{address}:{order_hash.hex()}')
         else:
@@ -100,12 +101,12 @@ def bex_add_liquidity(address: Union[Address, ChecksumAddress], private_key: Uni
         nonce += 1
     txn = bex_contract.functions.addLiquidity(pool=pool_address, receiver=address, assetsIn=[asset_in_address],
                                               amountsIn=[value]).build_transaction(
-        {'gas': 300000 + random.randint(1, 10000), 'gasPrice': int(w3.eth.gas_price * 1.1),
+        {'gas': 300000 + random.randint(1, 10000), 'gasPrice': int(w3.eth.gas_price * 1.15),
          'nonce': nonce})
     signed_txn = w3.eth.account.sign_transaction(txn, private_key=private_key)
     order_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
     logger.debug(f'{address}:{order_hash.hex()}')
-    order_result = w3.eth.wait_for_transaction_receipt(order_hash, timeout=360)
+    order_result = w3.eth.wait_for_transaction_receipt(order_hash, timeout=120)
     if order_result.status == 1:
         logger.success(f'{address}:{order_hash.hex()}')
     else:
@@ -126,10 +127,13 @@ def ym_test_run():
     account = Account.create()
     # 使用bera交换usc
     bex_swap(account.address, account.key, usdc_pool_address, usdc_address)
+    time.sleep(random.randint(5, 20))
     # 使用bera交换weth
     bex_swap(account.address, account.key, weth_pool_address, weth_address)
+    time.sleep(random.randint(5, 20))
     # 添加usdc流动性
     bex_add_liquidity(account.address, account.key, usdc_pool_liquidity_address, usdc_address)
+    time.sleep(random.randint(5, 20))
     # 添加weth流动性
     bex_add_liquidity(account.address, account.key, weth_pool_liquidity_address, weth_address)
 
