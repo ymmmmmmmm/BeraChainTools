@@ -57,10 +57,11 @@ drip_tokens.py
 
 ### bex 交互
 
-用于与 BeraChain 的 bex 交互。
+bex_swap.py
+支持代币交换和增加流动性
 
 - **访问链接**：[bex交互](https://artio.bex.berachain.com/swap)
-- **状态**：待完成
+- **状态**：已完成
 
 ### honey 交互
 
