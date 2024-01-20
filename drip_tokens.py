@@ -15,7 +15,7 @@ from loguru import logger
 from utils import get_google_token, get_ip
 
 load_dotenv()
-max_workers = os.getenv("MaxWorkers")
+max_workers = int(os.getenv("MaxWorkers"))
 
 fake = Faker(locale='zh-CN')
 

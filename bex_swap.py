@@ -2,9 +2,12 @@
 # Time     :2024/1/21 00:09
 # Author   :ym
 # File     :bex_swap.py
+import concurrent.futures
+import os
 import random
 from typing import Union
 
+from dotenv import load_dotenv
 from eth_account import Account
 from eth_typing import Address, ChecksumAddress, HexStr
 from loguru import logger
@@ -14,6 +17,8 @@ from config.abi_config import bex_abi, erc_20_abi
 from config.address_config import bex_swap_address, zero_address, weth_address, weth_pool_address, usdc_address, \
     usdc_pool_liquidity_address, bex_approve_liquidity_address, usdc_pool_address
 
+load_dotenv()
+max_workers = int(os.getenv("MaxWorkers"))
 w3 = Web3(Web3.HTTPProvider('https://artio.rpc.berachain.com/'))
 bex_contract = w3.eth.contract(address=bex_swap_address, abi=bex_abi)
 
@@ -112,7 +117,7 @@ def run(key):
     bex_add_liquidity(account.address, account.key, usdc_pool_liquidity_address, usdc_address)
 
 
-def test_run():
+def ym_test_run():
     account = Account.create()
     # 使用bera交换usc
     bex_swap(account.address, account.key, usdc_pool_address, usdc_address)
@@ -126,6 +131,5 @@ if __name__ == '__main__':
     # 读取当前文件夹下面的bera_claim_success(领取成功文本)
     with open('./bera_claim_success.txt', 'r') as f:
         wallet_list = f.readlines()
-    for _ in wallet_list:
-        _key = _.split('----')[1].replace('\n', '')
-        run(_key)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(run, i.split('----')[1].replace('\n', '')) for i in wallet_list]
