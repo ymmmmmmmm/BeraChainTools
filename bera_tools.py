@@ -14,9 +14,9 @@ from faker import Faker
 from requests import Response
 from web3 import Web3
 
-from config.abi_config import erc_20_abi, honey_abi, bex_abi
+from config.abi_config import erc_20_abi, honey_abi, bex_abi, bend_abi
 from config.address_config import bex_swap_address, usdc_address, honey_address, honey_swap_address, zero_address, \
-    bex_approve_liquidity_address, weth_address
+    bex_approve_liquidity_address, weth_address, bend_address
 
 
 class BeraChainTools(object):
@@ -33,6 +33,7 @@ class BeraChainTools(object):
         self.usdc_contract = self.w3.eth.contract(address=usdc_address, abi=erc_20_abi)
         self.weth_contract = self.w3.eth.contract(address=weth_address, abi=erc_20_abi)
         self.honey_contract = self.w3.eth.contract(address=honey_address, abi=erc_20_abi)
+        self.bend_contract = self.w3.eth.contract(address=bend_address, abi=bend_abi)
 
     def get_yescaptcha_google_token(self) -> Union[bool, str]:
         if self.yes_captcha_client_key == '':
@@ -181,6 +182,23 @@ class BeraChainTools(object):
 
         txn = self.honey_swap_contract.functions.redeem(to=self.account.address, amount=amount_honey_in,
                                                         collateral=usdc_address).build_transaction(
+            {'gas': 300000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.15),
+             'nonce': self.get_nonce()})
+        signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
+        order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        return order_hash.hex()
+
+    def bend_deposit(self, amount_in, amount_in_token_address):
+        amount_in_token_contract = self.w3.eth.contract(address=amount_in_token_address, abi=erc_20_abi)
+        token_balance = amount_in_token_contract.functions.balanceOf(self.account.address).call()
+        assert token_balance != 0
+        assert token_balance >= amount_in
+        allowance_balance = amount_in_token_contract.functions.allowance(self.account.address,
+                                                                         bend_address).call()
+        if allowance_balance < amount_in:
+            raise ValueError('需要授权')
+        txn = self.bend_contract.functions.supply(asset=amount_in_token_address, amount=amount_in,
+                                                  onBehalfOf=self.account.address, referralCode=0).build_transaction(
             {'gas': 300000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.15),
              'nonce': self.get_nonce()})
         signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)

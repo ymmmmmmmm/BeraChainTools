@@ -34,7 +34,7 @@ bera = BeraChainTools(private_key=account.key, yes_captcha_client_key=yes_captch
 # 不使用代理
 result = bera.claim_bera()
 # 使用代理
-# result = bera.claim_bera(proxies={'http':"http://127.0.0.1:8888","https":"http:127.0.0.1:8888"})
+# result = bera.claim_bera(proxies={'http':"http://127.0.0.1:8888","https":"http://127.0.0.1:8888"})
 logger.debug(result.text)
 ```
 
@@ -46,8 +46,10 @@ from eth_account import Account
 from loguru import logger
 
 from bera_tools import BeraChainTools
-from config.address_config import usdc_pool_address, usdc_address, weth_pool_address, weth_address,
-    bex_approve_liquidity_address, usdc_pool_liquidity_address, weth_pool_liquidity_address
+from config.address_config import (
+    usdc_pool_address, usdc_address, weth_pool_address, weth_address, bex_approve_liquidity_address,
+    usdc_pool_liquidity_address, weth_pool_liquidity_address
+)
 
 account = Account.from_key('xxxxxxxxxxxx')
 bera = BeraChainTools(private_key=account.key, rpc_url='https://rpc.ankr.com/berachain_testnet')
@@ -138,7 +140,7 @@ logger.debug(result)
 用于与 BeraChain 的 bend 服务交互。
 
 - **访问链接**：[bend交互](https://artio.bend.berachain.com/)
-- **状态**：待完成
+- **状态**：进行中
 
 ### berps 交互
 
