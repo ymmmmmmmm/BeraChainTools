@@ -12,43 +12,108 @@ BeraChainTools 一个为 BeraChain 生态系统设计的工具集，旨在帮助
 pip install -r requirements.txt
 ```
 
-### 配置指南
-
-#### 1. 设置代理
-
-- 打开 `.env` 文件。
-- 找到 `PROXY_URL` 并替换成你的代理提取链接。请确保提取格式为文本（text），提取数量设置为1。
-
-  示例：
-  ```
-  PROXY_URL=http://example.com/get-proxy?nums=1
-  ```
-
-#### 2. 设置 YesCaptcha Key
+### Examples
 
 - 如果你还没有 YesCaptcha 账号，请先在这里注册：[yescaptcha注册链接](https://yescaptcha.com/i/0vVEgw)。
-- 获取你的 YesCaptcha ClientKey。
-- 在 `.env` 文件中找到 `YesCaptchaClientKey` 并填入你的 ClientKey。
 
-  示例：
-  ```
-  YesCaptchaClientKey=YOUR_CLIENTKEY_HERE
-  ```
+Example 1 - 领水:
 
-#### 3. 设置 MaxWorkers(最大工作线程)
+```python
+from eth_account import Account
+from loguru import logger
 
-- 在 `.env` 文件中找到 `MaxWorkers` 并填入你想要设置的线程数量。
+from bera_tools import BeraChainTools
 
-  示例：
-  ```
-  MaxWorkers=8
-  ```
+account = Account.create()
+logger.debug(f'address:{account.address}')
+logger.debug(f'key:{account.key.hex()}')
+# TODO 填写你的 YesCaptcha client key
+yes_captcha_client_key = '00000000000000'
+bera = BeraChainTools(private_key=account.key, yes_captcha_client_key=yes_captcha_client_key,
+                      rpc_url='https://rpc.ankr.com/berachain_testnet')
+# 不使用代理
+result = bera.claim_bera()
+# 使用代理
+# result = bera.claim_bera(proxies={'http':"http://127.0.0.1:8888","https":"http:127.0.0.1:8888"})
+logger.debug(result.text)
+```
 
-## 功能和使用方法
+Example 2 - Bex 交互:
+
+```python
+
+from eth_account import Account
+from loguru import logger
+
+from bera_tools import BeraChainTools
+from config.address_config import usdc_pool_address, usdc_address, weth_pool_address, weth_address,
+    bex_approve_liquidity_address, usdc_pool_liquidity_address, weth_pool_liquidity_address
+
+account = Account.from_key('xxxxxxxxxxxx')
+bera = BeraChainTools(private_key=account.key, rpc_url='https://rpc.ankr.com/berachain_testnet')
+
+# bex 使用bera交换usdc
+bera_balance = bera.w3.eth.get_balance(account.address)
+result = bera.bex_swap(int(bera_balance * 0.2), usdc_pool_address, usdc_address)
+logger.debug(result)
+
+# bex 使用bera交换weth
+bera_balance = bera.w3.eth.get_balance(account.address)
+result = bera.bex_swap(int(bera_balance * 0.3), weth_pool_address, weth_address)
+logger.debug(result)
+
+# 授权usdc
+approve_result = bera.approve_token(bex_approve_liquidity_address, int("0x" + "f" * 64, 16), usdc_address)
+logger.debug(approve_result)
+# bex 增加 usdc 流动性
+usdc_balance = bera.usdc_contract.functions.balanceOf(account.address).call()
+result = bera.bex_add_liquidity(int(usdc_balance * 0.5), usdc_pool_liquidity_address, usdc_address)
+logger.debug(result)
+
+# 授权weth
+approve_result = bera.approve_token(bex_approve_liquidity_address, int("0x" + "f" * 64, 16), weth_address)
+logger.debug(approve_result)
+# bex 增加 weth 流动性
+weth_balance = bera.weth_contract.functions.balanceOf(account.address).call()
+result = bera.bex_add_liquidity(int(weth_balance * 0.5), weth_pool_liquidity_address, weth_address)
+logger.debug(result)
+
+```
+
+Example 3 - honey 交互:
+
+```python
+
+from eth_account import Account
+from loguru import logger
+
+from bera_tools import BeraChainTools
+from config.address_config import honey_swap_address, usdc_address, honey_address
+
+account = Account.from_key('xxxxxxxxxxxx')
+bera = BeraChainTools(private_key=account.key, rpc_url='https://rpc.ankr.com/berachain_testnet')
+
+# 授权usdc
+approve_result = bera.approve_token(honey_swap_address, int("0x" + "f" * 64, 16), usdc_address)
+logger.debug(approve_result)
+# 使用usdc mint honey
+usdc_balance = bera.usdc_contract.functions.balanceOf(account.address).call()
+result = bera.honey_mint(int(usdc_balance * 0.5))
+logger.debug(result)
+
+# 授权honey
+approve_result = bera.approve_token(honey_swap_address, int("0x" + "f" * 64, 16), honey_address)
+logger.debug(approve_result)
+# 赎回 
+honey_balance = bera.honey_contract.functions.balanceOf(account.address).call()
+result = bera.honey_redeem(int(honey_balance * 0.5))
+logger.debug(result)
+
+```
+
 
 ### BeraChain 领水
 
-drip_tokens.py
 支持创建地址领水或指定地址领水
 
 - **访问链接**：[BeraChain领水](https://artio.faucet.berachain.com/)
@@ -56,7 +121,6 @@ drip_tokens.py
 
 ### bex 交互
 
-bex_swap.py
 支持代币交换和增加流动性
 
 - **访问链接**：[bex交互](https://artio.bex.berachain.com/swap)
@@ -64,7 +128,6 @@ bex_swap.py
 
 ### honey 交互
 
-honey_swap.py
 支持mint和redeem
 
 - **访问链接**：[honey交互](https://artio.honey.berachain.com)

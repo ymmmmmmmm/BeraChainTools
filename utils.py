@@ -2,27 +2,15 @@
 # Time     :2024/1/19 21:38
 # Author   :ym
 # File     :utils.py
-import os
 import time
 from typing import Union
 
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
-proxy_url = os.getenv("PROXY_URL")
-YesCaptchaClientKey = os.getenv("YesCaptchaClientKey")
+from loguru import logger
 
 
-def get_ip():
-    if proxy_url == 'null':
-        return False
-    response = requests.get(url=proxy_url).text.strip().replace('\n', '')
-    return {"http": f'http://{response}', "https": f'http://{response}'}
-
-
-def get_google_token() -> Union[bool, str]:
-    json_data = {"clientKey": YesCaptchaClientKey,
+def get_yescaptcha_google_token(yes_captcha_client_key: str) -> Union[bool, str]:
+    json_data = {"clientKey": yes_captcha_client_key,
                  "task": {"websiteURL": "https://artio.faucet.berachain.com/",
                           "websiteKey": "6LfOA04pAAAAAL9ttkwIz40hC63_7IsaU2MgcwVH",
                           "type": "RecaptchaV3TaskProxylessM1S7", "pageAction": "submit"}, "softID": 109}
@@ -32,14 +20,29 @@ def get_google_token() -> Union[bool, str]:
     task_id = response['taskId']
     time.sleep(5)
     for _ in range(30):
-        data = {"clientKey": YesCaptchaClientKey, "taskId": task_id, }
+        data = {"clientKey": yes_captcha_client_key, "taskId": task_id}
         response = requests.post(url='https://api.yescaptcha.com/getTaskResult', json=data).json()
         if response['status'] == 'ready':
             return response['solution']['gRecaptchaResponse']
         else:
             time.sleep(2)
+    logger.warning(response)
+    return False
+
+
+def get_no_captcha_google_token(no_captcha_api_token: str) -> Union[bool, str]:
+    headers = {'User-Token': no_captcha_api_token, 'Content-Type': 'application/json', 'Developer-Id': 'UTtF29'}
+    json_data = {'sitekey': "6LfOA04pAAAAAL9ttkwIz40hC63_7IsaU2MgcwVH",
+                 'referer': 'https://artio.faucet.berachain.com/', 'size': 'invisible', 'title': 'Berachain Faucet',
+                 'action': 'submit', 'internal': False}
+    response = requests.post(url='http://api.nocaptcha.io/api/wanda/recaptcha/universal', headers=headers,
+                             json=json_data).json()
+    if response.get('status') == 1:
+        if response.get('msg') == '验证成功':
+            return response['data']['token']
+    logger.warning(response)
     return False
 
 
 if __name__ == '__main__':
-    print(get_google_token())
+    print(get_no_captcha_google_token(''))
