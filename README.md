@@ -64,10 +64,11 @@ bex_swap.py
 
 ### honey 交互
 
-用于与 BeraChain 的 honey 服务交互。
+honey_swap.py
+支持mint和redeem
 
 - **访问链接**：[honey交互](https://artio.honey.berachain.com)
-- **状态**：待完成
+- **状态**：已完成
 
 ### bend 交互
 

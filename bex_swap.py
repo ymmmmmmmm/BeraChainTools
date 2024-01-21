@@ -12,22 +12,20 @@ from dotenv import load_dotenv
 from eth_account import Account
 from eth_typing import Address, ChecksumAddress, HexStr
 from loguru import logger
-from retrying import retry
 from web3 import Web3
 
-from config.abi_config import bex_abi, erc_20_abi
-from config.address_config import bex_swap_address, zero_address, weth_address, weth_pool_address, usdc_address, \
+from config.abi_config import erc_20_abi
+from config.address_config import zero_address, weth_address, weth_pool_address, usdc_address, \
     usdc_pool_liquidity_address, bex_approve_liquidity_address, usdc_pool_address, weth_pool_liquidity_address
+from config.contract_config import bex_contract
 
 load_dotenv()
 max_workers = int(os.getenv("MaxWorkers"))
 rpc_url = os.getenv("RPC_URL")
 w3 = Web3(Web3.HTTPProvider(rpc_url))
-bex_contract = w3.eth.contract(address=bex_swap_address, abi=bex_abi)
 
 
 @logger.catch
-@retry(stop_max_attempt_number=5, wait_random_min=1000, wait_random_max=5000)
 def bex_swap(address: Union[Address, ChecksumAddress], private_key: Union[bytes, HexStr, int],
              pool_address: Union[Address], asset_out_address: Union[Address, ChecksumAddress]) -> str:
     """
@@ -62,7 +60,6 @@ def bex_swap(address: Union[Address, ChecksumAddress], private_key: Union[bytes,
 
 
 @logger.catch
-@retry(stop_max_attempt_number=5, wait_random_min=1000, wait_random_max=5000)
 def bex_add_liquidity(address: Union[Address, ChecksumAddress], private_key: Union[bytes, HexStr, int],
                       pool_address: Union[Address], asset_in_address: Union[Address]) -> str:
     """
@@ -115,11 +112,14 @@ def bex_add_liquidity(address: Union[Address, ChecksumAddress], private_key: Uni
     return order_hash.hex()
 
 
-def run(key):
+def bex_run(key):
     account = Account.from_key(key)
     bex_swap(account.address, account.key, usdc_pool_address, usdc_address)
+    time.sleep(random.randint(5, 20))
     bex_swap(account.address, account.key, weth_pool_address, weth_address)
+    time.sleep(random.randint(5, 20))
     bex_add_liquidity(account.address, account.key, usdc_pool_liquidity_address, usdc_address)
+    time.sleep(random.randint(5, 20))
     bex_add_liquidity(account.address, account.key, weth_pool_liquidity_address, weth_address)
 
 
@@ -144,4 +144,4 @@ if __name__ == '__main__':
         wallet_list = f.readlines()
     random.shuffle(wallet_list)
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(run, i.split('----')[1].replace('\n', '')) for i in wallet_list]
+        futures = [executor.submit(bex_run, i.split('----')[1].replace('\n', '')) for i in wallet_list]
