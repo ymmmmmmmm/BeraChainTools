@@ -40,8 +40,15 @@ def claim(address=None):
 
             params = {'address': claim_address}
             response = requests.post('https://artio-80085-ts-faucet-api-2.berachain.com/api/claim', params=params,
-                                     headers=headers, data=json.dumps(params), proxies=get_ip()).json()
-            if 'Txhash' in response['msg'] or 'to the queue' in response['msg']:
+                                     headers=headers, data=json.dumps(params), proxies=get_ip()).text
+            logger.debug(response)
+            if 'Txhash' in response or 'to the queue' in response:
+                logger.success(f'{claim_address}:{response}')
+                if not address:
+                    with open('bera_claim_success.txt', 'a+') as f:
+                        f.writelines(f'{account.address}----{account.key.hex()}\n')
+                return
+            elif '"message":"' in response and '-' in response:
                 logger.success(f'{claim_address}:{response}')
                 if not address:
                     with open('bera_claim_success.txt', 'a+') as f:
