@@ -199,3 +199,7 @@ logger.debug(result)
 感谢使用
 BeraChainTools！如有任何问题或建议，请随时通过 [GitHub Issues](https://github.com/ymmmmmmmm/BeraChainTools/issues) 提交。
 
+
+### 更多疑问请扫码加入交流群
+![WechatIMG172](https://github.com/ymmmmmmmm/BeraChainTools/assets/51306299/352023a1-0aed-4ddd-9e7b-adb44088a0c8)
+
