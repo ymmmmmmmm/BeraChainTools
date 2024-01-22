@@ -17,3 +17,5 @@ weth_pool_liquidity_address = w3.to_checksum_address('0x101f52c804C1C02c0A1D3344
 bex_approve_liquidity_address = w3.to_checksum_address('0x0000000000000000000000000000000000696969')
 weth_pool_address = w3.to_checksum_address('0xD3C962F3F36484439A41d0E970cF6581dDf0a9A1')
 zero_address = w3.to_checksum_address('0x0000000000000000000000000000000000000000')
+bend_borrows_address = w3.to_checksum_address('0xfb618D1e361C362adDE4E148A4Dc85465a0A4A22')
+bend_pool_address = w3.to_checksum_address('0x9b7666d47F5D103f3D51d0Dc227BB57f115C6021')

@@ -7,9 +7,11 @@ from eth_account import Account
 from loguru import logger
 
 from bera_tools import BeraChainTools
+from config.address_config import honey_address, bend_pool_address
 
 # 创建钱包
 account = Account.create()
+# account = Account.from_key('')
 logger.debug(f'address:{account.address}')
 logger.debug(f'key:{account.key.hex()}')
 
@@ -20,8 +22,8 @@ bera = BeraChainTools(private_key=account.key, client_key=yes_captcha_client_key
                       rpc_url='https://rpc.ankr.com/berachain_testnet')
 
 # 领水
-result = bera.claim_bera()
-logger.debug(result.text)
+# result = bera.claim_bera()
+# logger.debug(result.text)
 # bex 使用bera交换usdc
 # bera_balance = bera.w3.eth.get_balance(account.address)
 # result = bera.bex_swap(int(bera_balance * 0.2), usdc_pool_address, usdc_address)
@@ -65,3 +67,18 @@ logger.debug(result.text)
 # weth_balance = bera.weth_contract.functions.balanceOf(account.address).call()
 # result = bera.bend_deposit(int(weth_balance), weth_address)
 # logger.debug(result)
+
+# bend borrow
+# balance = bera.bend_contract.functions.getUserAccountData(account.address).call()[2]
+# logger.debug(balance)
+# result = bera.bend_borrow(int(balance*0.8*1e10),honey_address)
+# logger.debug(result)
+
+# bend repay
+# approve_result = bera.approve_token(bend_address, int("0x" + "f" * 64, 16), honey_address)
+# logger.debug(approve_result)
+call_result = bera.bend_borrows_contract.functions.getUserReservesData(bend_pool_address, bera.account.address).call()
+repay_amount = call_result[0][0][4]
+logger.debug(repay_amount)
+result = bera.bend_repay(int(repay_amount * 0.9), honey_address)
+logger.debug(result)
