@@ -104,8 +104,8 @@ class BeraChainTools(object):
                    'origin': 'https://artio.faucet.berachain.com', 'pragma': 'no-cache',
                    'referer': 'https://artio.faucet.berachain.com/', 'user-agent': user_agent}
         params = {'address': self.account.address}
-        if proxies is not None:
-            proxies = {"http": f"http://{proxies}", "https": f"http://{proxies}"}
+        # if proxies is not None:
+        #     proxies = {"http": f"http://{proxies}", "https": f"http://{proxies}"}
         response = requests.post('https://artio-80085-ts-faucet-api-2.berachain.com/api/claim', params=params,
                                  headers=headers, data=json.dumps(params), proxies=proxies)
         return response
