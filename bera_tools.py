@@ -20,9 +20,12 @@ from config.address_config import bex_swap_address, usdc_address, honey_address,
 
 
 class BeraChainTools(object):
-    def __init__(self, private_key, yes_captcha_client_key='', rpc_url='https://artio.rpc.berachain.com/'):
+    def __init__(self, private_key, client_key='', solver_provider='', rpc_url='https://artio.rpc.berachain.com/'):
+        if solver_provider not in ["yescaptcha", "2captcha", ""]:
+            raise ValueError("solver_provider must be 'yescaptcha' or '2captcha'")
+        self.solver_provider = solver_provider
         self.private_key = private_key
-        self.yes_captcha_client_key = yes_captcha_client_key
+        self.client_key = client_key
         self.rpc_url = rpc_url
         self.fake = Faker()
         self.account = Account.from_key(self.private_key)
@@ -35,10 +38,31 @@ class BeraChainTools(object):
         self.honey_contract = self.w3.eth.contract(address=honey_address, abi=erc_20_abi)
         self.bend_contract = self.w3.eth.contract(address=bend_address, abi=bend_abi)
 
+    def get_2captcha_google_token(self) -> Union[bool, str]:
+        if self.client_key == '':
+            raise ValueError('2captcha_client_key is null ')
+        params = {'key': self.client_key, 'method': 'userrecaptcha', 'version': 'v3', 'action': 'submit',
+                  'min_score': 0.5,
+                  'googlekey': '6LfOA04pAAAAAL9ttkwIz40hC63_7IsaU2MgcwVH',
+                  'pageurl': 'https://artio.faucet.berachain.com/',
+                  'json': 1}
+        response = requests.get(f'https://2captcha.com/in.php?', params=params).json()
+        if response['status'] != 1:
+            raise ValueError(response)
+        task_id = response['request']
+        for _ in range(60):
+            response = requests.get(
+                f'https://2captcha.com/res.php?key={self.client_key}&action=get&id={task_id}&json=1').json()
+            if response['status'] == 1:
+                return response['request']
+            else:
+                time.sleep(3)
+        return False
+
     def get_yescaptcha_google_token(self) -> Union[bool, str]:
-        if self.yes_captcha_client_key == '':
+        if self.client_key == '':
             raise ValueError('yes_captcha_client_key is null ')
-        json_data = {"clientKey": self.yes_captcha_client_key,
+        json_data = {"clientKey": self.client_key,
                      "task": {"websiteURL": "https://artio.faucet.berachain.com/",
                               "websiteKey": "6LfOA04pAAAAAL9ttkwIz40hC63_7IsaU2MgcwVH",
                               "type": "RecaptchaV3TaskProxylessM1S7", "pageAction": "submit"}, "softID": 109}
@@ -48,7 +72,7 @@ class BeraChainTools(object):
         task_id = response['taskId']
         time.sleep(5)
         for _ in range(30):
-            data = {"clientKey": self.yes_captcha_client_key, "taskId": task_id}
+            data = {"clientKey": self.client_key, "taskId": task_id}
             response = requests.post(url='https://api.yescaptcha.com/getTaskResult', json=data).json()
             if response['status'] == 'ready':
                 return response['solution']['gRecaptchaResponse']
@@ -65,7 +89,12 @@ class BeraChainTools(object):
         :param proxies: http代理
         :return: object
         """
-        google_token = self.get_yescaptcha_google_token()
+        if self.solver_provider == 'yescaptcha':
+            google_token = self.get_yescaptcha_google_token()
+        elif self.solver_provider == '2captcha':
+            google_token = self.get_2captcha_google_token()
+        else:
+            raise ValueError("solver_provider must be 'yescaptcha' or '2captcha'")
         if not google_token:
             raise ValueError('获取google token 出错')
         user_agent = self.fake.chrome()

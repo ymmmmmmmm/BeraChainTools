@@ -15,6 +15,7 @@ pip install -r requirements.txt
 ### Examples
 
 - 如果你还没有 YesCaptcha 账号，请先在这里注册：[yescaptcha注册链接](https://yescaptcha.com/i/0vVEgw)。
+- 如果你还没有 2captcha 账号，请先在这里注册：[2captcha注册链接](https://cn.2captcha.com/?from=9389597)。
 
 Example 1 - 领水:
 
@@ -27,10 +28,12 @@ from bera_tools import BeraChainTools
 account = Account.create()
 logger.debug(f'address:{account.address}')
 logger.debug(f'key:{account.key.hex()}')
-# TODO 填写你的 YesCaptcha client key
-yes_captcha_client_key = '00000000000000'
-bera = BeraChainTools(private_key=account.key, yes_captcha_client_key=yes_captcha_client_key,
-                      rpc_url='https://rpc.ankr.com/berachain_testnet')
+# TODO 填写你的 YesCaptcha client key 或者2Captcha API Key
+client_key = '00000000000000'
+# 使用yescaptcha solver googlev3
+bera = BeraChainTools(private_key=account.key, client_key=client_key,solver_provider='yescaptcha',rpc_url='https://rpc.ankr.com/berachain_testnet')
+# 使用2captcha solver googlev3
+# bera = BeraChainTools(private_key=account.key, client_key=client_key,solver_provider='2captcha',rpc_url='https://rpc.ankr.com/berachain_testnet')
 # 不使用代理
 result = bera.claim_bera()
 # 使用代理

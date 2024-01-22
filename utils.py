@@ -44,5 +44,23 @@ def get_no_captcha_google_token(no_captcha_api_token: str) -> Union[bool, str]:
     return False
 
 
+def get_2captcha_google_token(captcha_key: str) -> Union[bool, str]:
+    params = {'key': captcha_key, 'method': 'userrecaptcha', 'version': 'v3', 'action': 'submit', 'min_score': 0.5,
+              'googlekey': '6LfOA04pAAAAAL9ttkwIz40hC63_7IsaU2MgcwVH', 'pageurl': 'https://artio.faucet.berachain.com/',
+              'json': 1}
+    response = requests.get(f'https://2captcha.com/in.php?', params=params).json()
+    if response['status'] != 1:
+        raise ValueError(response)
+    task_id = response['request']
+    for _ in range(60):
+        response = requests.get(f'https://2captcha.com/res.php?key={captcha_key}&action=get&id={task_id}&json=1').json()
+        if response['status'] == 1:
+            return response['request']
+        else:
+            time.sleep(3)
+    return False
+
+
 if __name__ == '__main__':
-    print(get_no_captcha_google_token(''))
+    # print(get_no_captcha_google_token(''))
+    print(get_2captcha_google_token(''))
