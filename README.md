@@ -16,6 +16,8 @@ pip install -r requirements.txt
 
 - 如果你还没有 YesCaptcha 账号，请先在这里注册：[yescaptcha注册链接](https://yescaptcha.com/i/0vVEgw)。
 - 如果你还没有 2captcha 账号，请先在这里注册：[2captcha注册链接](https://cn.2captcha.com/?from=9389597)。
+- 如果你还没有 ez-captcha
+  账号，请先在这里注册：[ez-captcha注册链接](https://dashboard.ez-captcha.com/#/register?inviteCode=djnhuqvHuQJ)。
 
 Example 1 - 领水:
 
@@ -28,12 +30,15 @@ from bera_tools import BeraChainTools
 account = Account.create()
 logger.debug(f'address:{account.address}')
 logger.debug(f'key:{account.key.hex()}')
-# TODO 填写你的 YesCaptcha client key 或者2Captcha API Key
+# TODO 填写你的 YesCaptcha client key 或者2Captcha API Key 或者 ez-captcha ClientKey
 client_key = '00000000000000'
 # 使用yescaptcha solver googlev3
 bera = BeraChainTools(private_key=account.key, client_key=client_key,solver_provider='yescaptcha',rpc_url='https://rpc.ankr.com/berachain_testnet')
 # 使用2captcha solver googlev3
 # bera = BeraChainTools(private_key=account.key, client_key=client_key,solver_provider='2captcha',rpc_url='https://rpc.ankr.com/berachain_testnet')
+# 使用ez-captcha solver googlev3
+# bera = BeraChainTools(private_key=account.key, client_key=client_key,solver_provider='ez-captcha',rpc_url='https://rpc.ankr.com/berachain_testnet')
+
 # 不使用代理
 result = bera.claim_bera()
 # 使用代理
@@ -50,7 +55,7 @@ from loguru import logger
 
 from bera_tools import BeraChainTools
 from config.address_config import (
-    usdc_pool_address, usdc_address, weth_pool_address, weth_address, bex_approve_liquidity_address,
+    usdc_address, wbear_address, weth_address, bex_approve_liquidity_address,
     usdc_pool_liquidity_address, weth_pool_liquidity_address
 )
 
@@ -59,12 +64,11 @@ bera = BeraChainTools(private_key=account.key, rpc_url='https://rpc.ankr.com/ber
 
 # bex 使用bera交换usdc
 bera_balance = bera.w3.eth.get_balance(account.address)
-result = bera.bex_swap(int(bera_balance * 0.2), usdc_pool_address, usdc_address)
+result = bera.bex_swap(int(bera_balance * 0.2), wbear_address, usdc_address)
 logger.debug(result)
-
-# bex 使用bera交换weth
-bera_balance = bera.w3.eth.get_balance(account.address)
-result = bera.bex_swap(int(bera_balance * 0.3), weth_pool_address, weth_address)
+# bex 使用usdc交换weth
+usdc_balance = bera.usdc_contract.functions.balanceOf(account.address).call()
+result = bera.bex_swap(int(usdc_balance * 0.2), usdc_address, weth_address)
 logger.debug(result)
 
 # 授权usdc
@@ -129,6 +133,9 @@ from config.address_config import bend_address, weth_address, honey_address, ben
 account = Account.from_key('xxxxxxxxxxxx')
 bera = BeraChainTools(private_key=account.key, rpc_url='https://rpc.ankr.com/berachain_testnet')
 
+# 授权
+approve_result = bera.approve_token(bend_address, int("0x" + "f" * 64, 16), weth_address)
+logger.debug(approve_result)
 # deposit
 weth_balance = bera.weth_contract.functions.balanceOf(account.address).call()
 result = bera.bend_deposit(int(weth_balance), weth_address)
