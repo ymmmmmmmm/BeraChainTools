@@ -106,18 +106,23 @@ class BeraChainTools(object):
     def get_nonce(self):
         return self.w3.eth.get_transaction_count(self.account.address)
 
+    def get_solver_provider(self):
+        provider_dict = {
+            'yescaptcha': self.get_yescaptcha_google_token,
+            '2captcha': self.get_2captcha_google_token,
+            'ez-captcha': self.get_ez_captcha_google_token,
+        }
+        if self.solver_provider not in list(provider_dict.keys()):
+            raise ValueError("solver_provider must be 'yescaptcha' or '2captcha' or 'ez-captcha' ")
+        return provider_dict[self.solver_provider]()
+
     def claim_bera(self, proxies=None) -> Response:
         """
         bera领水
         :param proxies: http代理
         :return: object
         """
-        if self.solver_provider == 'yescaptcha':
-            google_token = self.get_yescaptcha_google_token()
-        elif self.solver_provider == '2captcha':
-            google_token = self.get_2captcha_google_token()
-        else:
-            raise ValueError("solver_provider must be 'yescaptcha' or '2captcha'")
+        google_token = self.get_solver_provider()
         if not google_token:
             raise ValueError('获取google token 出错')
         user_agent = self.fake.chrome()
