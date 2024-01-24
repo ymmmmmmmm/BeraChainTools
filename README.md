@@ -182,18 +182,6 @@ logger.debug(approve_result)
 result = bera.honey_jar_mint()
 logger.debug(result)
 
-
-from solcx import install_solc
-# 合约部署
-# 安装0.4.18 版本编译器
-install_solc('0.4.18')
-# 读取sol文件
-with open('config/WETH.sol', 'r') as f:
-    code = f.read()
-# 部署合约
-result = bera.deploy_contract(code, '0.4.18')
-logger.debug(result)
-
 ```
 
 Example 6 - 部署合约:
