@@ -12,6 +12,7 @@ from eth_account import Account
 from eth_typing import Address, ChecksumAddress
 from faker import Faker
 from requests import Response
+from solcx import compile_source, set_solc_version
 from web3 import Web3
 
 from config.abi_config import erc_20_abi, honey_abi, bex_abi, bend_abi, bend_borrows_abi, ooga_booga_abi
@@ -359,5 +360,30 @@ class BeraChainTools(object):
                 data='0xa6f2ae3a',
             ),
             self.account.key)
+        order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        return order_hash.hex()
+
+    def deploy_contract(self, contract_source_code, solc_version):
+        """
+        部署合约
+        运行前需要安装你指定的版本
+            from solcx import install_solc
+            install_solc('0.4.18')
+        :param contract_source_code: 合约代码
+        :param solc_version: 编译器版本
+        :return:
+        """
+        ""
+        set_solc_version(solc_version)
+        compiled_sol = compile_source(contract_source_code)
+        contract_id, contract_interface = compiled_sol.popitem()
+        txn = dict(
+            chainId=80085,
+            gas=2000000,
+            gasPrice=int(self.w3.eth.gas_price * 1.15),
+            nonce=self.get_nonce(),
+            data=contract_interface['bin'])
+        # 签署交易
+        signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
         order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         return order_hash.hex()
