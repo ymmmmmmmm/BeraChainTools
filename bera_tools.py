@@ -14,9 +14,10 @@ from faker import Faker
 from requests import Response
 from web3 import Web3
 
-from config.abi_config import erc_20_abi, honey_abi, bex_abi, bend_abi, bend_borrows_abi
+from config.abi_config import erc_20_abi, honey_abi, bex_abi, bend_abi, bend_borrows_abi, ooga_booga_abi
 from config.address_config import bex_swap_address, usdc_address, honey_address, honey_swap_address, \
-    bex_approve_liquidity_address, weth_address, bend_address, bend_borrows_address, wbear_address, zero_address
+    bex_approve_liquidity_address, weth_address, bend_address, bend_borrows_address, wbear_address, zero_address, \
+    ooga_booga_address
 
 
 class BeraChainTools(object):
@@ -38,6 +39,7 @@ class BeraChainTools(object):
         self.honey_contract = self.w3.eth.contract(address=honey_address, abi=erc_20_abi)
         self.bend_contract = self.w3.eth.contract(address=bend_address, abi=bend_abi)
         self.bend_borrows_contract = self.w3.eth.contract(address=bend_borrows_address, abi=bend_borrows_abi)
+        self.ooga_booga_contract = self.w3.eth.contract(address=ooga_booga_address, abi=ooga_booga_abi)
 
     def get_2captcha_google_token(self) -> Union[bool, str]:
         if self.client_key == '':
@@ -177,7 +179,7 @@ class BeraChainTools(object):
                                                                             bex_swap_address).call()
             if allowance_balance < amount_in:
                 raise ValueError(
-                    f'需要授权\nplease run : \nbera.approve_token(bex_swap_address, int("0x" + "f" * 64, 16), {asset_in_address})')
+                    f'需要授权\nplease run : \nbera.approve_token(bex_swap_address, int("0x" + "f" * 64, 16), "{asset_in_address}")')
 
         headers = {'authority': 'artio-80085-dex-router.berachain.com', 'accept': '*/*',
                    'accept-language': 'zh-CN,zh;q=0.9', 'cache-control': 'no-cache',
@@ -226,7 +228,7 @@ class BeraChainTools(object):
                                                                         bex_approve_liquidity_address).call()
         if allowance_balance < amount_in:
             raise ValueError(
-                f'需要授权\nplease run : \nbera.approve_token(bex_approve_liquidity_address, int("0x" + "f" * 64, 16), {asset_in_address})')
+                f'需要授权\nplease run : \nbera.approve_token(bex_approve_liquidity_address, int("0x" + "f" * 64, 16), "{asset_in_address}")')
         txn = self.bex_contract.functions.addLiquidity(pool=pool_address, receiver=self.account.address,
                                                        assetsIn=[asset_in_address],
                                                        amountsIn=[amount_in]).build_transaction(
@@ -248,7 +250,7 @@ class BeraChainTools(object):
         allowance_balance = self.usdc_contract.functions.allowance(self.account.address, honey_swap_address).call()
         if allowance_balance < amount_usdc_in:
             raise ValueError(
-                f'需要授权\nplease run : \nbera.approve_token(honey_swap_address, int("0x" + "f" * 64, 16), {usdc_address})')
+                f'需要授权\nplease run : \nbera.approve_token(honey_swap_address, int("0x" + "f" * 64, 16), "{usdc_address}")')
         txn = self.honey_swap_contract.functions.mint(to=self.account.address, collateral=usdc_address,
                                                       amount=amount_usdc_in, ).build_transaction(
             {'gas': 500000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.15),
@@ -269,7 +271,7 @@ class BeraChainTools(object):
         allowance_balance = self.honey_contract.functions.allowance(self.account.address, honey_swap_address).call()
         if allowance_balance < amount_honey_in:
             raise ValueError(
-                f'需要授权\nplease run : \nbera.approve_token(honey_swap_address, int("0x" + "f" * 64, 16), {honey_address})')
+                f'需要授权\nplease run : \nbera.approve_token(honey_swap_address, int("0x" + "f" * 64, 16), "{honey_address}")')
 
         txn = self.honey_swap_contract.functions.redeem(to=self.account.address, amount=amount_honey_in,
                                                         collateral=usdc_address).build_transaction(
@@ -294,7 +296,7 @@ class BeraChainTools(object):
                                                                          bend_address).call()
         if allowance_balance < amount_in:
             raise ValueError(
-                f'需要授权\nplease run : \nbera.approve_token(bend_address, int("0x" + "f" * 64, 16), {amount_in_token_address})')
+                f'需要授权\nplease run : \nbera.approve_token(bend_address, int("0x" + "f" * 64, 16), "{amount_in_token_address}")')
         txn = self.bend_contract.functions.supply(asset=amount_in_token_address, amount=amount_in,
                                                   onBehalfOf=self.account.address, referralCode=0).build_transaction(
             {'gas': 500000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.15),
@@ -329,12 +331,33 @@ class BeraChainTools(object):
         allowance_balance = self.honey_contract.functions.allowance(self.account.address, bend_address).call()
         if allowance_balance < repay_amount:
             raise ValueError(
-                f'需要授权\nplease run : \nbera.approve_token(bend_address, int("0x" + "f" * 64, 16), {honey_address})')
+                f'需要授权\nplease run : \nbera.approve_token(bend_address, int("0x" + "f" * 64, 16), "{honey_address}")')
 
         txn = self.bend_contract.functions.repay(asset=asset_token_address, amount=repay_amount,
                                                  interestRateMode=2, onBehalfOf=self.account.address).build_transaction(
             {'gas': 500000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.15),
              'nonce': self.get_nonce()})
         signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
+        order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        return order_hash.hex()
+
+    def honey_jar_mint(self):
+        allowance_balance = self.honey_contract.functions.allowance(self.account.address, ooga_booga_address).call()
+        if allowance_balance / 1e18 < 4.2:
+            raise ValueError(
+                f'需要授权\nplease run : \nbera.approve_token(ooga_booga_address, int("0x" + "f" * 64, 16), "{honey_address}")')
+        has_mint = self.ooga_booga_contract.functions.hasMinted(self.account.address).call()
+        if has_mint:
+            return True
+        signed_txn = self.w3.eth.account.sign_transaction(
+            dict(
+                chainId=80085,
+                nonce=self.get_nonce(),
+                gasPrice=int(self.w3.eth.gas_price * 1.15),
+                gas=134500 + random.randint(1, 10000),
+                to=self.w3.to_checksum_address(ooga_booga_address),
+                data='0xa6f2ae3a',
+            ),
+            self.account.key)
         order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         return order_hash.hex()

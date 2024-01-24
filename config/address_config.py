@@ -21,3 +21,4 @@ wbear_address = w3.to_checksum_address('0x5806E416dA447b267cEA759358cF22Cc41FAE8
 wbtc_address = w3.to_checksum_address('0x9DAD8A1F64692adeB74ACa26129e0F16897fF4BB')
 bend_borrows_address = w3.to_checksum_address('0xfb618D1e361C362adDE4E148A4Dc85465a0A4A22')
 bend_pool_address = w3.to_checksum_address('0x9b7666d47F5D103f3D51d0Dc227BB57f115C6021')
+ooga_booga_address = w3.to_checksum_address('0x6553444CaA1d4FA329aa9872008ca70AE6131925')

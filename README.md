@@ -159,6 +159,30 @@ result = bera.bend_repay(int(repay_amount * 0.9), honey_address)
 logger.debug(result)
 
 ```
+
+Example 5 - 其他 交互:
+
+```python
+
+from eth_account import Account
+from loguru import logger
+
+from bera_tools import BeraChainTools
+from config.address_config import ooga_booga_address, honey_address
+
+account = Account.from_key('xxxxxxxxxxxx')
+bera = BeraChainTools(private_key=account.key, rpc_url='https://rpc.ankr.com/berachain_testnet')
+
+# https://faucet.0xhoneyjar.xyz/mint
+# 授权
+approve_result = bera.approve_token(ooga_booga_address, int("0x" + "f" * 64, 16), honey_address)
+logger.debug(approve_result)
+# 花费4.2 honey mint
+result = bera.honey_jar_mint()
+logger.debug(result)
+
+```
+
 ### BeraChain 领水
 
 支持创建地址领水或指定地址领水
@@ -192,7 +216,7 @@ logger.debug(result)
 用于与 BeraChain 的 berps 服务交互。
 
 - **访问链接**：[berps交互](https://artio.berps.berachain.com/)
-- **状态**：待完成
+- **状态**：进行中
 
 ### station 交互
 
@@ -203,9 +227,13 @@ logger.debug(result)
 
 ---
 
+
+
 感谢使用
 BeraChainTools！如有任何问题或建议，请随时通过 [GitHub Issues](https://github.com/ymmmmmmmm/BeraChainTools/issues) 提交。
 
+如果您认可和喜欢 BeraChainTools 的功能和使用体验，我非常欢迎您给项目点个 star。您的 star 是对我的工作的认可和支持，也是我不断改进和提升
+BeraChainTools 的动力！谢谢您的支持！
 
 ### 更多疑问请扫码加入交流群
 ![WechatIMG172](https://github.com/ymmmmmmmm/BeraChainTools/assets/51306299/352023a1-0aed-4ddd-9e7b-adb44088a0c8)
