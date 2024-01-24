@@ -2,4 +2,6 @@ loguru>=0.7.0
 requests>=2.31.0
 Faker>=18.13.0
 web3>=6.5.0
+aiofiles>=23.2.1
+aiohttp>=3.8.4
 py-solc-x>=2.0.2
