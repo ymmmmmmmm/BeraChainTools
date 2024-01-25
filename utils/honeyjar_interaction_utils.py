@@ -25,7 +25,7 @@ def honeyjar_interacte_(private_key):
         # 花费4.2 honey mint
         result = bera.honey_jar_mint()
         # logger.debug(result)
-        logger.success('0xhoneyjar 交互成功')
+        logger.success(f'0xhoneyjar 交互成功,{result}')
         logger.debug('-------------------------------------------------------------------------------------')
         return True
     except Exception as e:

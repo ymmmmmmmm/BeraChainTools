@@ -6,8 +6,9 @@ from proxy_utils import get_proxy
 
 
 def generate_wallet(count):
-    for _ in range(count):
+    for i in range(count):
         try:
+            logger.debug(f'生成第{i + 1}个账号')
             account = Account.create()
             logger.debug(f'address:{account.address}')
             logger.debug(f'key:{account.key.hex()}')
@@ -16,9 +17,12 @@ def generate_wallet(count):
                                   rpc_url='https://rpc.ankr.com/berachain_testnet')
 
             result = bera.claim_bera(proxies=get_proxy())
-            logger.debug(result.text)
+            logger.debug(f'{result.text}\n')
             with open('../wallet/bera_private_keys.txt', 'a') as f:
                 f.write(account.key.hex() + '\n')
         except Exception as e:
-            print()
+            logger.error(e)
 
+
+if __name__ == '__main__':
+    generate_wallet(100)

@@ -33,11 +33,11 @@ def bex_interacte(private_key):
     try:
         # 授权usdc
         approve_result = bera.approve_token(bex_approve_liquidity_address, int("0x" + "f" * 64, 16), usdc_address)
-        logger.debug(approve_result)
+        # logger.debug(approve_result)
         # bex 增加 usdc 流动性
         usdc_balance = bera.usdc_contract.functions.balanceOf(account.address).call()
         result = bera.bex_add_liquidity(int(usdc_balance * 0.5), usdc_pool_liquidity_address, usdc_address)
-        logger.debug(result)
+        # logger.debug(result)
         logger.success(f'bex 增加 usdc 流动性成功！！！,{result}')
     except Exception as e:
         logger.error(f'bex 增加 usdc 流动性失败！！！,{e}')
@@ -45,7 +45,7 @@ def bex_interacte(private_key):
     try:
         # 授权weth
         approve_result = bera.approve_token(bex_approve_liquidity_address, int("0x" + "f" * 64, 16), weth_address)
-        logger.debug(approve_result)
+        # logger.debug(approve_result)
         # bex 增加 weth 流动性
         weth_balance = bera.weth_contract.functions.balanceOf(account.address).call()
         result = bera.bex_add_liquidity(int(weth_balance * 0.5), weth_pool_liquidity_address, weth_address)

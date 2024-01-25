@@ -1,3 +1,5 @@
+import random
+
 from eth_account import Account
 from loguru import logger
 
@@ -15,25 +17,34 @@ def interacte(private_key):
     bex_interacte(private_key)
 
     # setp3 Honey 交互
-    honey_interacte(private_key)
+    # honey_interacte(private_key)
 
     # step4 Bend 交互
-    bend_interacte(private_key)
+    # bend_interacte(private_key)
 
     # step5 0xhoneyjar 交互
-    honeyjar_interacte(private_key)
+    # honeyjar_interacte(private_key)
 
     # setp6 部署合约
-    deploy_contract(private_key)
+    # deploy_contract(private_key)
+
+    steps = [honey_interacte, bend_interacte, honeyjar_interacte, deploy_contract]
+    random.shuffle(steps)
+
+    for step in steps:
+        step(private_key)
 
 
 if __name__ == '__main__':
-    file_path = './wallet/bera_private_keys.txt'  # 请替换为您的文件路径
+    file_path = 'wallet/bera_private_keys.txt'  # 请替换为您的文件路径
+    interaction_count = 0  # 初始化交互计数器
     with open(file_path, 'r') as file:
         # 逐行读取文件
         for private_key in file:
             account = Account.from_key(private_key.strip())
-            logger.debug(f'开始交互，账户地址为{account.address}，账户私钥为：{private_key.strip()}')
+            interaction_count += 1  # 每次开始交互时增加计数器
+            logger.debug(
+                f'第{++interaction_count}次开始交互，账户地址为：{account.address}，账户私钥为：{private_key.strip()}')
             interacte(private_key.strip())
             logger.success(f'交互完成，账户为：{private_key.strip()}')
             logger.debug('\n\n\n\n\n')

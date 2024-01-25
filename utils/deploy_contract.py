@@ -28,8 +28,8 @@ def deploy_contract_(private_key):
         code = code.replace('Bera Test Ether', 'Bera Test Ether' + random_string)
         # 部署合约
         result = bera.deploy_contract(code, '0.4.18')
-        logger.debug(result)
-        logger.success('部署合约成功')
+        # logger.debug(result)
+        logger.success(f'部署合约成功,{result}')
         logger.debug('-------------------------------------------------------------------------------------')
         return True
     except Exception as e:
