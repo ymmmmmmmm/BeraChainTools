@@ -2,6 +2,76 @@
 
 BeraChainTools 一个为 BeraChain 生态系统设计的工具集，旨在帮助用户轻松地进行各种交互和操作。
 
+### main_publish_1_25_2024版本的使用
+#### 批量创建账户并领水
+```python
+from eth_account import Account
+from loguru import logger
+
+from bera_tools import BeraChainTools
+from proxy_utils import get_proxy
+
+def generate_wallet(count):
+    for _ in range(count):
+        try:
+            account = Account.create()
+            logger.debug(f'address:{account.address}')
+            logger.debug(f'key:{account.key.hex()}')
+            client_key = ''
+            bera = BeraChainTools(private_key=account.key, client_key=client_key, solver_provider='ez-captcha',
+                                  rpc_url='https://rpc.ankr.com/berachain_testnet')
+
+            result = bera.claim_bera(proxies=get_proxy())
+            logger.debug(result.text)
+            with open('../wallet/bera_private_keys.txt', 'a') as f:
+                f.write(account.key.hex() + '\n')
+        except Exception as e:
+            print()
+```
+需要获取代理。 创建好后，存入bera_private_keys.txtx中
+#### 自动交互
+```python
+from eth_account import Account
+from loguru import logger
+
+from utils.bend_interaction_utils import bend_interacte
+from utils.bex_interaction_utils import bex_interacte
+from utils.deploy_contract import deploy_contract
+from utils.honey_interaction_utils import honey_interacte
+from utils.honeyjar_interaction_utils import honeyjar_interacte
+
+
+def interacte(private_key):
+    # step1: 领水
+
+    # setp2 Bex 交互
+    bex_interacte(private_key)
+
+    # setp3 Honey 交互
+    honey_interacte(private_key)
+
+    # step4 Bend 交互
+    bend_interacte(private_key)
+
+    # step5 0xhoneyjar 交互
+    honeyjar_interacte(private_key)
+
+    # setp6 部署合约
+    deploy_contract(private_key)
+
+
+if __name__ == '__main__':
+    file_path = './wallet/bera_private_keys.txt'  # 请替换为您的文件路径
+    with open(file_path, 'r') as file:
+        # 逐行读取文件
+        for private_key in file:
+            account = Account.from_key(private_key.strip())
+            logger.debug(f'开始交互，账户地址为{account.address}，账户私钥为：{private_key.strip()}')
+            interacte(private_key.strip())
+            logger.success(f'交互完成，账户为：{private_key.strip()}')
+            logger.debug('\n\n\n\n\n')
+```
+
 ### 安装依赖
 
 在开始使用 BeraChainTools 之前，请确保安装了所有必要的依赖。

@@ -14,6 +14,7 @@ from faker import Faker
 from requests import Response
 from solcx import compile_source, set_solc_version
 from web3 import Web3
+from loguru import logger
 
 from config.abi_config import erc_20_abi, honey_abi, bex_abi, bend_abi, bend_borrows_abi, ooga_booga_abi
 from config.address_config import bex_swap_address, usdc_address, honey_address, honey_swap_address, \
@@ -156,6 +157,10 @@ class BeraChainTools(object):
              'nonce': self.get_nonce()})
         signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
         order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        # 等待交易收据
+        transaction_receipt = self.w3.eth.wait_for_transaction_receipt(order_hash)
+        # 打印收据信息
+        # logger.debug(f'授权成功！！！，{transaction_receipt}')
         return order_hash.hex()
 
     def bex_swap(self, amount_in: int, asset_in_address: Union[Address, ChecksumAddress],
@@ -211,6 +216,10 @@ class BeraChainTools(object):
              'gasPrice': int(self.w3.eth.gas_price * 1.2), 'nonce': self.get_nonce()})
         signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
         order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        # 等待交易收据
+        self.w3.eth.wait_for_transaction_receipt(order_hash)
+        # 打印收据信息
+        # logger.debug(f'交换成功！！！')
         return order_hash.hex()
 
     def bex_add_liquidity(self, amount_in: int, pool_address: Union[Address], asset_in_address: Union[Address]) -> str:
@@ -237,6 +246,10 @@ class BeraChainTools(object):
              'nonce': self.get_nonce()})
         signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
         order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        # 等待交易收据
+        transaction_receipt = self.w3.eth.wait_for_transaction_receipt(order_hash)
+        # 打印收据信息
+        # logger.debug(f'bex 增加 usdc 流动性成功！！！')
         return order_hash.hex()
 
     def honey_mint(self, amount_usdc_in: int) -> str:
@@ -258,6 +271,10 @@ class BeraChainTools(object):
              'nonce': self.get_nonce()})
         signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
         order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        # 等待交易收据
+        transaction_receipt = self.w3.eth.wait_for_transaction_receipt(order_hash)
+        # 打印收据信息
+        # logger.debug(f'STGUSDC转换HONEY成功！！！，{transaction_receipt}')
         return order_hash.hex()
 
     def honey_redeem(self, amount_honey_in: int) -> str:
@@ -280,6 +297,10 @@ class BeraChainTools(object):
              'nonce': self.get_nonce()})
         signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
         order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        # 等待交易收据
+        transaction_receipt = self.w3.eth.wait_for_transaction_receipt(order_hash)
+        # 打印收据信息
+        # logger.debug(f'HONEY转换STGUSDC成功！！！，{transaction_receipt}')
         return order_hash.hex()
 
     def bend_deposit(self, amount_in: int, amount_in_token_address: Union[Address]) -> str:
@@ -304,6 +325,10 @@ class BeraChainTools(object):
              'nonce': self.get_nonce()})
         signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
         order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        # 等待交易收据
+        transaction_receipt = self.w3.eth.wait_for_transaction_receipt(order_hash)
+        # 打印收据信息
+        # logger.debug(f'存钱成功！！！！')
         return order_hash.hex()
 
     def bend_borrow(self, amount_out: int, asset_token_address: Union[Address]) -> str:
@@ -320,6 +345,10 @@ class BeraChainTools(object):
              'nonce': self.get_nonce()})
         signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
         order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        # 等待交易收据
+        self.w3.eth.wait_for_transaction_receipt(order_hash)
+        # 打印收据信息
+        # logger.debug(f'借款成功！！！！')
         return order_hash.hex()
 
     def bend_repay(self, repay_amount: int, asset_token_address: Union[Address]) -> str:
