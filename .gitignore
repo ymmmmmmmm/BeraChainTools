@@ -5,7 +5,7 @@
 config.json
 .idea/*
 .git/*
-wallet/*.txt
+wallet/bera_private_keys_*.txt
 config.ini
 __pycache__
 
