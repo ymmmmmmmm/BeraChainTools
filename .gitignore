@@ -1,5 +1,14 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# 在本地项目目录下删除缓存
+# git rm -r --cached .
+
+# 删除本地分支
+# git branch -d localBranchName
+
+# 删除远程分支
+# git push origin --delete remoteBranchName
+
 # dependencies
 /node_modules
 config.json
