@@ -332,5 +332,6 @@ BeraChainTools！如有任何问题或建议，请随时通过 [GitHub Issues](h
 BeraChainTools 的动力！谢谢您的支持！
 
 ### 更多疑问请扫码加入交流群
-![WechatIMG172](https://github.com/ymmmmmmmm/BeraChainTools/assets/51306299/352023a1-0aed-4ddd-9e7b-adb44088a0c8)
+![微信图片_20240125232734](https://github.com/ymmmmmmmm/BeraChainTools/assets/51306299/e3544a52-f638-447f-9022-1006e973c68f)
+
 
