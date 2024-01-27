@@ -1,4 +1,5 @@
 import random
+import os
 import configparser
 from eth_account import Account
 from loguru import logger
@@ -42,6 +43,11 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('config.ini')
     file_path = config.get('app', 'file_path')
+    # 如果私钥文件,自动创建一个
+    if not os.path.exists(file_path):
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, 'w') as file:
+            file.write('')
     if mode_init_wallet:
         rpc_url = config.get('app', 'rpc_url')
         proxy_url = config.get('app', 'proxy_url')
