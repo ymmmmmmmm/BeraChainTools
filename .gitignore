@@ -7,4 +7,6 @@ config.json
 .git/*
 wallet/*.txt
 config.ini
+__pycache__
+
 
