@@ -1,11 +1,10 @@
-/test/
-/address.txt
-/bera_claim_success.txt
-/example/example.py
-/venv/
-/.idea/misc.xml
-/.idea/modules.xml
-/.idea/inspectionProfiles/Project_Default.xml
-/.idea/vcs.xml
-/.idea/BeraChainTools.iml
-/.idea/.gitignore
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+config.json
+.idea/*
+.git/*
+wallet/
+config.ini
+
