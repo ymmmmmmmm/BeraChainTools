@@ -137,7 +137,7 @@ class BeraChainTools(object):
         params = {'address': self.account.address}
         # if proxies is not None:
         #     proxies = {"http": f"http://{proxies}", "https": f"http://{proxies}"}
-        response = requests.post('https://artio-80085-ts-faucet-api-2.berachain.com/api/claim', params=params,
+        response = requests.post('https://artio-80085-faucet-api-recaptcha.berachain.com/api/claim', params=params,
                                  headers=headers, data=json.dumps(params), proxies=proxies)
         return response
 
