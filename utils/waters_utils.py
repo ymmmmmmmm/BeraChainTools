@@ -32,6 +32,3 @@ def generate_wallet(count, rpc_url, proxy_url, solver_provider, client_key, file
                 f.write(account.key.hex() + '\n')
         except Exception as e:
             logger.error(e)
-
-
-
