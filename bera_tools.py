@@ -130,16 +130,33 @@ class BeraChainTools(object):
         if not google_token:
             raise ValueError('获取google token 出错')
         user_agent = self.fake.chrome()
-        headers = {'authority': 'artio-80085-ts-faucet-api-2.berachain.com', 'accept': '*/*',
-                   'accept-language': 'zh-CN,zh;q=0.9', 'authorization': f'Bearer {google_token}',
-                   'cache-control': 'no-cache', 'content-type': 'text/plain;charset=UTF-8',
-                   'origin': 'https://artio.faucet.berachain.com', 'pragma': 'no-cache',
-                   'referer': 'https://artio.faucet.berachain.com/', 'user-agent': user_agent}
+        url = 'https://artio-80085-faucet-api-recaptcha.berachain.com/api/claim??address='+self.account.address
+        host = 'artio-80085-faucet-api-recaptcha.berachain.com'
+        headers = {
+            # 'authority': 'artio-80085-ts-faucet-api-2.berachain.com',
+            'authority': host,
+            'accept': '*/*',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'authorization': f'Bearer {google_token}',
+            'cache-control': 'no-cache',
+            'content-type': 'text/plain;charset=UTF-8',
+            'origin': 'https://artio.faucet.berachain.com',
+            'pragma': 'no-cache',
+            'referer': 'https://artio.faucet.berachain.com/',
+            'user-agent': user_agent
+        }
         params = {'address': self.account.address}
         # if proxies is not None:
         #     proxies = {"http": f"http://{proxies}", "https": f"http://{proxies}"}
-        response = requests.post('https://artio-80085-ts-faucet-api-2.berachain.com/api/claim', params=params,
-                                 headers=headers, data=json.dumps(params), proxies=proxies)
+
+        response = requests.post(
+            # 'https://artio-80085-ts-faucet-api-2.berachain.com/api/claim',
+            url,
+            params=params,
+            headers=headers,
+            data=json.dumps(params),
+            proxies=proxies
+        )
         return response
 
     def approve_token(self, spender: Union[Address, ChecksumAddress], amount: int,
@@ -160,7 +177,7 @@ class BeraChainTools(object):
         # 等待交易收据
         transaction_receipt = self.w3.eth.wait_for_transaction_receipt(order_hash)
         # 打印收据信息
-        # logger.debug(f'授权成功！！！，{transaction_receipt}')
+        logger.debug(f'授权成功！！！，{transaction_receipt}')
         return order_hash.hex()
 
     def bex_swap(self, amount_in: int, asset_in_address: Union[Address, ChecksumAddress],
@@ -219,7 +236,7 @@ class BeraChainTools(object):
         # 等待交易收据
         self.w3.eth.wait_for_transaction_receipt(order_hash)
         # 打印收据信息
-        # logger.debug(f'交换成功！！！')
+        logger.debug(f'交换成功！！！')
         return order_hash.hex()
 
     def bex_add_liquidity(self, amount_in: int, pool_address: Union[Address], asset_in_address: Union[Address]) -> str:
@@ -249,7 +266,7 @@ class BeraChainTools(object):
         # 等待交易收据
         transaction_receipt = self.w3.eth.wait_for_transaction_receipt(order_hash)
         # 打印收据信息
-        # logger.debug(f'bex 增加 usdc 流动性成功！！！')
+        logger.debug(f'bex 增加 usdc 流动性成功！！！')
         return order_hash.hex()
 
     def honey_mint(self, amount_usdc_in: int) -> str:
@@ -274,7 +291,7 @@ class BeraChainTools(object):
         # 等待交易收据
         transaction_receipt = self.w3.eth.wait_for_transaction_receipt(order_hash)
         # 打印收据信息
-        # logger.debug(f'STGUSDC转换HONEY成功！！！，{transaction_receipt}')
+        logger.debug(f'STGUSDC转换HONEY成功！！！，{transaction_receipt}')
         return order_hash.hex()
 
     def honey_redeem(self, amount_honey_in: int) -> str:
@@ -300,7 +317,7 @@ class BeraChainTools(object):
         # 等待交易收据
         transaction_receipt = self.w3.eth.wait_for_transaction_receipt(order_hash)
         # 打印收据信息
-        # logger.debug(f'HONEY转换STGUSDC成功！！！，{transaction_receipt}')
+        logger.debug(f'HONEY转换STGUSDC成功！！！，{transaction_receipt}')
         return order_hash.hex()
 
     def bend_deposit(self, amount_in: int, amount_in_token_address: Union[Address]) -> str:
@@ -328,7 +345,7 @@ class BeraChainTools(object):
         # 等待交易收据
         transaction_receipt = self.w3.eth.wait_for_transaction_receipt(order_hash)
         # 打印收据信息
-        # logger.debug(f'存钱成功！！！！')
+        logger.debug(f'存钱成功！！！！')
         return order_hash.hex()
 
     def bend_borrow(self, amount_out: int, asset_token_address: Union[Address]) -> str:
@@ -348,7 +365,7 @@ class BeraChainTools(object):
         # 等待交易收据
         self.w3.eth.wait_for_transaction_receipt(order_hash)
         # 打印收据信息
-        # logger.debug(f'借款成功！！！！')
+        logger.debug(f'借款成功！！！！')
         return order_hash.hex()
 
     def bend_repay(self, repay_amount: int, asset_token_address: Union[Address]) -> str:

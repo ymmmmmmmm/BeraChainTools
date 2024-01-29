@@ -10,6 +10,7 @@
 # git push origin --delete remoteBranchName
 
 # dependencies
+venv
 /node_modules
 config.json
 .idea/*
