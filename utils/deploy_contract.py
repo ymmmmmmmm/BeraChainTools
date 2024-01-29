@@ -9,16 +9,16 @@ from solcx import install_solc
 from bera_tools import BeraChainTools
 
 
-def deploy_contract(private_key):
+def deploy_contract(private_key, rpc_url):
     for _ in range(10):
-        if deploy_contract_(private_key):
+        if deploy_contract_(private_key, rpc_url):
             return
 
 
-def deploy_contract_(private_key):
+def deploy_contract_(private_key, rpc_url):
     try:
         account = Account.from_key(private_key)
-        bera = BeraChainTools(private_key=account.key, rpc_url='https://rpc.ankr.com/berachain_testnet')
+        bera = BeraChainTools(private_key=account.key, rpc_url=rpc_url)
         # 安装0.4.18 版本编译器
         install_solc('0.4.18')
         # 读取sol文件
