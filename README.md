@@ -253,6 +253,14 @@ logger.debug(result)
 
 ---
 
+### galxe 任务
+
+请访问作者
+[Fooyao](https://github.com/Fooyao)
+
+- **Github项目地址**：[galxe](https://github.com/Fooyao/galxe_bind_twitter/tree/main)
+
+---
 
 
 感谢使用
