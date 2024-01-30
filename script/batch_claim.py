@@ -19,9 +19,10 @@ async def get_2captcha_google_token(session: aiohttp.ClientSession) -> Union[boo
     params = {'key': client_key, 'method': 'userrecaptcha', 'version': 'v3', 'action': 'submit', 'min_score': 0.5,
               'googlekey': '6LfOA04pAAAAAL9ttkwIz40hC63_7IsaU2MgcwVH', 'pageurl': 'https://artio.faucet.berachain.com/',
               'json': 1}
-    async with session.get('https://api.ez-captcha.com/createTask', params=params) as response:
+    async with session.get('https://2captcha.com/in.php?', params=params) as response:
         response_json = await response.json()
-        if response_json['errorId'] != 0:
+        # logger.debug(response_json)
+        if response_json['status'] != 1:
             logger.warning(response_json)
             return False
         task_id = response_json['request']
@@ -112,7 +113,7 @@ async def claim_faucet(address: Union[Address, ChecksumAddress], google_token: s
                'referer': 'https://artio.faucet.berachain.com/', 'user-agent': user_agent}
     params = {'address': address}
     proxies = await get_ip(session)
-    async with session.post('https://artio-80085-ts-faucet-api-2.berachain.com/api/claim', headers=headers,
+    async with session.post('https://artio-80085-faucet-api-recaptcha.berachain.com/api/claim', headers=headers,
                             data=json.dumps(params), params=params, proxy=proxies) as response:
         response_text = await response.text()
     if 'try again' not in response_text and 'message":"' in response_text:
