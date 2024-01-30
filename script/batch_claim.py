@@ -118,6 +118,9 @@ async def claim_faucet(address: Union[Address, ChecksumAddress], google_token: s
     if 'try again' not in response_text and 'message":"' in response_text:
         logger.success(response_text)
         await write_to_file(address)
+    elif 'Txhash' in response_text:
+        logger.success(response_text)
+        await write_to_file(address)
     else:
         logger.warning(response_text.replace('\n', ''))
 
