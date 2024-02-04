@@ -142,7 +142,7 @@ class BeraChainTools(object):
         return response
 
     def approve_token(self, spender: Union[Address, ChecksumAddress], amount: int,
-                      approve_token_address: Union[Address, ChecksumAddress]) -> str:
+                      approve_token_address: Union[Address, ChecksumAddress]) -> Union[bool, str]:
         """
         授权代币
         :param spender: 授权给哪个地址
@@ -151,12 +151,16 @@ class BeraChainTools(object):
         :return: hash
         """
         approve_contract = self.w3.eth.contract(address=approve_token_address, abi=erc_20_abi)
-        txn = approve_contract.functions.approve(spender, amount).build_transaction(
-            {'gas': 500000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.15),
-             'nonce': self.get_nonce()})
-        signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
-        order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-        return order_hash.hex()
+
+        allowance_balance = approve_contract.functions.allowance(self.account.address, spender).call()
+        if allowance_balance < amount:
+            txn = approve_contract.functions.approve(spender, amount).build_transaction(
+                {'gas': 500000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.15),
+                 'nonce': self.get_nonce()})
+            signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
+            order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            return order_hash.hex()
+        return True
 
     def bex_swap(self, amount_in: int, asset_in_address: Union[Address, ChecksumAddress],
                  asset_out_address: Union[Address, ChecksumAddress]) -> str:
