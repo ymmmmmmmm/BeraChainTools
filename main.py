@@ -39,7 +39,7 @@ def interacte(private_key, rpc_url, proxy_url, solver_provider, client_key):
         bex_interacte(private_key, rpc_url)
         steps = [
             honey_interacte,
-            # bend_interacte,
+            bend_interacte,
             honeyjar_interacte,
             deploy_contract
         ]
@@ -73,7 +73,7 @@ if __name__ == '__main__':
             k = 0
             for private_key in file:
                 k += 1
-                if k > 4:
+                if k > 0:
                     interaction_count += 1  # 每次开始交互时增加计数器
                     account = Account.from_key(private_key.strip())
                     logger.debug(
@@ -83,4 +83,3 @@ if __name__ == '__main__':
                     end_time = time.time()
                     logger.success(f'交互完成，账户为：{private_key.strip()},用时:{end_time-start_time}')
                     logger.debug('\n\n\n\n\n')
-                    break
