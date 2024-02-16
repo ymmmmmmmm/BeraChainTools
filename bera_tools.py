@@ -18,7 +18,7 @@ from web3 import Web3
 from config.abi_config import erc_20_abi, honey_abi, bex_abi, bend_abi, bend_borrows_abi, ooga_booga_abi
 from config.address_config import bex_swap_address, usdc_address, honey_address, honey_swap_address, \
     bex_approve_liquidity_address, weth_address, bend_address, bend_borrows_address, wbear_address, zero_address, \
-    ooga_booga_address
+    ooga_booga_address, ooga_booga_address_1
 
 
 class BeraChainTools(object):
@@ -390,6 +390,27 @@ class BeraChainTools(object):
         order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         return order_hash.hex()
 
+    def honey_jar_mint_NY(self):
+        allowance_balance = self.honey_contract.functions.allowance(self.account.address, ooga_booga_address_1).call()
+        if allowance_balance / 1e18 < 4.2:
+            raise ValueError(
+                f'需要授权\nplease run : \nbera.approve_token(ooga_booga_address_1, int("0x" + "f" * 64, 16), "{honey_address}")')
+        has_mint = self.ooga_booga_contract_NY.functions.hasMinted(self.account.address).call()
+        if has_mint:
+            return True
+        signed_txn = self.w3.eth.account.sign_transaction(
+            dict(
+                chainId=80085,
+                nonce=self.get_nonce(),
+                gasPrice=int(self.w3.eth.gas_price * 50),
+                gas=234500 + random.randint(1, 10000),
+                to=self.w3.to_checksum_address(ooga_booga_address_1),
+                data='0xa6f2ae3a',
+            ),
+            self.account.key)
+        order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        return order_hash.hex()
+        
     def deploy_contract(self, contract_source_code, solc_version):
         """
         部署合约
