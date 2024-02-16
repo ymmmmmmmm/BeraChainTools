@@ -23,7 +23,8 @@ from config.address_config import bex_swap_address, usdc_address, honey_address,
 
 class BeraChainTools(object):
     def __init__(self, private_key, client_key='', solver_provider='', rpc_url='https://artio.rpc.berachain.com/'):
-        if solver_provider not in ["yescaptcha", "2captcha", "ez-captcha", ""]:
+        # if solver_provider not in ["yescaptcha", "2captcha", "ez-captcha", ""]:
+        if solver_provider not in ["yescaptcha"]:
             raise ValueError("solver_provider must be 'yescaptcha' or '2captcha' or 'ez-captcha' ")
         self.solver_provider = solver_provider
         self.private_key = private_key
@@ -84,6 +85,26 @@ class BeraChainTools(object):
                 time.sleep(2)
         return False
 
+    def get_yescaptcha_turnstile_token(self) -> Union[bool, str]:
+        if self.client_key == '':
+            raise ValueError('yes_captcha_client_key is null ')
+        json_data = {"clientKey": self.client_key,
+                     "task": {"websiteURL": "https://artio.faucet.berachain.com/",
+                              "websiteKey": "0x4AAAAAAARdAuciFArKhVwt",
+                              "type": "TurnstileTaskProxylessM1"}, "softID": 109}
+        response = self.session.post(url='https://api.yescaptcha.com/createTask', json=json_data).json()
+        if response['errorId'] != 0:
+            raise ValueError(response)
+        task_id = response['taskId']
+        time.sleep(5)
+        for _ in range(30):
+            data = {"clientKey": self.client_key, "taskId": task_id}
+            response = requests.post(url='https://api.yescaptcha.com/getTaskResult', json=data).json()
+            if response['status'] == 'ready':
+                return response['solution']['token']
+            else:
+                time.sleep(2)
+        return False
     def get_ez_captcha_google_token(self) -> Union[bool, str]:
         if self.client_key == '':
             raise ValueError('ez-captcha is null ')
@@ -111,7 +132,8 @@ class BeraChainTools(object):
 
     def get_solver_provider(self):
         provider_dict = {
-            'yescaptcha': self.get_yescaptcha_google_token,
+            # 'yescaptcha': self.get_yescaptcha_google_token,
+            'yescaptcha': self.get_yescaptcha_turnstile_token,
             '2captcha': self.get_2captcha_google_token,
             'ez-captcha': self.get_ez_captcha_google_token,
         }
@@ -134,10 +156,11 @@ class BeraChainTools(object):
                    'cache-control': 'no-cache', 'content-type': 'text/plain;charset=UTF-8',
                    'origin': 'https://artio.faucet.berachain.com', 'pragma': 'no-cache',
                    'referer': 'https://artio.faucet.berachain.com/', 'user-agent': user_agent}
+        # print(headers)
         params = {'address': self.account.address}
         # if proxies is not None:
         #     proxies = {"http": f"http://{proxies}", "https": f"http://{proxies}"}
-        response = requests.post('https://artio-80085-faucet-api-recaptcha.berachain.com/api/claim', params=params,
+        response = requests.post('https://artio-80085-faucet-api-cf.berachain.com/api/claim', params=params,
                                  headers=headers, data=json.dumps(params), proxies=proxies)
         return response
 
