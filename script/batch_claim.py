@@ -59,6 +59,28 @@ async def get_yescaptcha_google_token(session: aiohttp.ClientSession) -> Union[b
     return False
 
 
+async def get_yescaptcha_turnstile_token(session: aiohttp.ClientSession) -> Union[bool, str]:
+    json_data = {"clientKey": client_key,
+                 "task": {"websiteURL": "https://artio.faucet.berachain.com/",
+                          "websiteKey": "0x4AAAAAAARdAuciFArKhVwt",
+                          "type": "TurnstileTaskProxylessM1"}, "softID": 109}
+    async with session.post('https://api.yescaptcha.com/createTask', json=json_data) as response:
+        response_json = await response.json()
+        if response_json['errorId'] != 0:
+            logger.warning(response_json)
+            return False
+        task_id = response_json['taskId']
+    for _ in range(120):
+        data = {"clientKey": client_key, "taskId": task_id}
+        async with session.post('https://api.yescaptcha.com/getTaskResult', json=data) as response:
+            response_json = await response.json()
+            if response_json['status'] == 'ready':
+                return response_json['solution']['token']
+            else:
+                await asyncio.sleep(1)
+    return False
+
+
 async def get_ez_captcha_google_token(session: aiohttp.ClientSession) -> Union[bool, str]:
     json_data = {
         "clientKey": client_key, "task": {"websiteURL": "https://artio.faucet.berachain.com/",
@@ -113,7 +135,7 @@ async def claim_faucet(address: Union[Address, ChecksumAddress], google_token: s
                'referer': 'https://artio.faucet.berachain.com/', 'user-agent': user_agent}
     params = {'address': address}
     proxies = await get_ip(session)
-    async with session.post('https://artio-80085-faucet-api-recaptcha.berachain.com/api/claim', headers=headers,
+    async with session.post('https://artio-80085-faucet-api-cf.berachain.com/api/claim', headers=headers,
                             data=json.dumps(params), params=params, proxy=proxies) as response:
         response_text = await response.text()
     if 'try again' not in response_text and 'message":"' in response_text:
@@ -127,10 +149,9 @@ async def claim_faucet(address: Union[Address, ChecksumAddress], google_token: s
 
 
 def get_solver_provider():
-    provider_dict = {'yescaptcha': get_yescaptcha_google_token, '2captcha': get_2captcha_google_token,
-                     'ez-captcha': get_ez_captcha_google_token}
+    provider_dict = {'yescaptcha': get_yescaptcha_turnstile_token}
     if solver_provider not in list(provider_dict.keys()):
-        raise ValueError("solver_provider must be 'yescaptcha' or '2captcha' or 'ez-captcha' ")
+        raise ValueError("solver_provider must be 'yescaptcha'")
     return provider_dict[solver_provider]
 
 
@@ -162,8 +183,8 @@ if __name__ == '__main__':
     """
     # 验证平台key
     client_key = 'xxxxxxxxxxx'
-    # 用哪个验证平台 yescaptcha 2captcha ez-captcha
-    solver_provider = 'ez-captcha'
+    # 目前只支持使用yescaptcha
+    solver_provider = 'yescaptcha'
     # 代理获取链接 设置一次提取一个 返回格式为text
     get_ip_url = 'http://127.0.0.1:8883/get_ip'
     # 并发数量
