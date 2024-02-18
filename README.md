@@ -209,6 +209,22 @@ logger.debug(result)
 
 ```
 
+Example 7 - 域名注册:
+
+```python
+
+from eth_account import Account
+from loguru import logger
+
+from bera_tools import BeraChainTools
+
+account = Account.from_key('xxxxxxxxxxxx')
+bera = BeraChainTools(private_key=account.key, rpc_url='https://rpc.ankr.com/berachain_testnet')
+result = bera.create_bera_name()
+logger.debug(result)
+
+```
+
 ### BeraChain 领水
 
 支持创建地址领水或指定地址领水
@@ -235,6 +251,13 @@ logger.debug(result)
 用于与 BeraChain 的 bend 服务交互。
 
 - **访问链接**：[bend交互](https://artio.bend.berachain.com/)
+- **状态**：已完成
+
+### beranames 交互
+
+用于与 BeraChain 的 beranames 服务交互。
+
+- **访问链接**：[beranames交互](https://www.beranames.com)
 - **状态**：已完成
 
 ### berps 交互
