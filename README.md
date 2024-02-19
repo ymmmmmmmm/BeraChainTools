@@ -13,7 +13,8 @@ pip install -r requirements.txt
 ```
 
 ### Examples
-- bera目前验证更改为 CloudflareTurnstile，请使用yecaptcha解码，2captcha将在稍后更新
+
+- bera目前验证更改为 CloudflareTurnstile，目前支持 yecaptcha 和 2captcha 解码
 - 如果你还没有 YesCaptcha 账号，请先在这里注册：[yescaptcha注册链接](https://yescaptcha.com/i/0vVEgw)。
 - 如果你还没有 2captcha 账号，请先在这里注册：[2captcha注册链接](https://cn.2captcha.com/?from=9389597)。
 - 如果你还没有 ez-captcha
