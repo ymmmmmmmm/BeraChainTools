@@ -25,7 +25,7 @@ from config.other_config import emoji_list
 class BeraChainTools(object):
     def __init__(self, private_key, client_key='', solver_provider='', rpc_url='https://artio.rpc.berachain.com/'):
         # if solver_provider not in ["yescaptcha", "2captcha", "ez-captcha", ""]:
-        if solver_provider not in ["yescaptcha"]:
+        if solver_provider not in ["yescaptcha", "2captcha"]:
             raise ValueError("solver_provider must be 'yescaptcha' or '2captcha' or 'ez-captcha' ")
         self.solver_provider = solver_provider
         self.private_key = private_key
@@ -51,6 +51,26 @@ class BeraChainTools(object):
         params = {'key': self.client_key, 'method': 'userrecaptcha', 'version': 'v3', 'action': 'submit',
                   'min_score': 0.5,
                   'googlekey': '6LfOA04pAAAAAL9ttkwIz40hC63_7IsaU2MgcwVH',
+                  'pageurl': 'https://artio.faucet.berachain.com/',
+                  'json': 1}
+        response = requests.get(f'https://2captcha.com/in.php?', params=params).json()
+        if response['status'] != 1:
+            raise ValueError(response)
+        task_id = response['request']
+        for _ in range(60):
+            response = requests.get(
+                f'https://2captcha.com/res.php?key={self.client_key}&action=get&id={task_id}&json=1').json()
+            if response['status'] == 1:
+                return response['request']
+            else:
+                time.sleep(3)
+        return False
+
+    def get_2captcha_turnstile_token(self) -> Union[bool, str]:
+        if self.client_key == '':
+            raise ValueError('2captcha_client_key is null ')
+        params = {'key': self.client_key, 'method': 'turnstile',
+                  'sitekey': '0x4AAAAAAARdAuciFArKhVwt',
                   'pageurl': 'https://artio.faucet.berachain.com/',
                   'json': 1}
         response = requests.get(f'https://2captcha.com/in.php?', params=params).json()
@@ -137,7 +157,7 @@ class BeraChainTools(object):
         provider_dict = {
             # 'yescaptcha': self.get_yescaptcha_google_token,
             'yescaptcha': self.get_yescaptcha_turnstile_token,
-            '2captcha': self.get_2captcha_google_token,
+            '2captcha': self.get_2captcha_turnstile_token,
             'ez-captcha': self.get_ez_captcha_google_token,
         }
         if self.solver_provider not in list(provider_dict.keys()):

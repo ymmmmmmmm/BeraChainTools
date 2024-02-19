@@ -37,6 +37,29 @@ async def get_2captcha_google_token(session: aiohttp.ClientSession) -> Union[boo
     return False
 
 
+async def get_2captcha_turnstile_token(session: aiohttp.ClientSession) -> Union[bool, str]:
+    params = {'key': client_key, 'method': 'turnstile',
+              'sitekey': '0x4AAAAAAARdAuciFArKhVwt',
+              'pageurl': 'https://artio.faucet.berachain.com/',
+              'json': 1}
+    async with session.get('https://2captcha.com/in.php?', params=params) as response:
+        response_json = await response.json()
+        # logger.debug(response_json)
+        if response_json['status'] != 1:
+            logger.warning(response_json)
+            return False
+        task_id = response_json['request']
+    for _ in range(120):
+        async with session.get(
+                f'https://2captcha.com/res.php?key={client_key}&action=get&id={task_id}&json=1') as response:
+            response_json = await response.json()
+            if response_json['status'] == 1:
+                return response_json['request']
+            else:
+                await asyncio.sleep(1)
+    return False
+
+
 async def get_yescaptcha_google_token(session: aiohttp.ClientSession) -> Union[bool, str]:
     json_data = {"clientKey": client_key,
                  "task": {"websiteURL": "https://artio.faucet.berachain.com/",
@@ -149,7 +172,7 @@ async def claim_faucet(address: Union[Address, ChecksumAddress], google_token: s
 
 
 def get_solver_provider():
-    provider_dict = {'yescaptcha': get_yescaptcha_turnstile_token}
+    provider_dict = {'yescaptcha': get_yescaptcha_turnstile_token, '2captcha': get_2captcha_turnstile_token}
     if solver_provider not in list(provider_dict.keys()):
         raise ValueError("solver_provider must be 'yescaptcha'")
     return provider_dict[solver_provider]
@@ -183,7 +206,7 @@ if __name__ == '__main__':
     """
     # 验证平台key
     client_key = 'xxxxxxxxxxx'
-    # 目前只支持使用yescaptcha
+    # 目前支持使用yescaptcha 2captcha
     solver_provider = 'yescaptcha'
     # 代理获取链接 设置一次提取一个 返回格式为text
     get_ip_url = 'http://127.0.0.1:8883/get_ip'
