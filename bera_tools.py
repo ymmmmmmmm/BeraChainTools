@@ -6,6 +6,7 @@ import json
 import random
 import time
 from typing import Union
+import asyncio
 
 import requests
 from eth_account import Account
