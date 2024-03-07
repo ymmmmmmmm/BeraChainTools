@@ -33,7 +33,8 @@ def create_file_if_not_exists(file_dir: str, operate: str):
 async def record_success_operator_address(address: Union[Address, ChecksumAddress], operate: str):
     file_path = record_today_file_path(operate)
     create_file_if_not_exists(root, operate)
-    with open(file_path, 'w') as file:
+    with open(file_path, 'a') as file:
+        file.write('\n')
         file.write(address)
         pass
 

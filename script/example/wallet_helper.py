@@ -54,6 +54,11 @@ async def write_to_file(key: str, address: Union[Address, ChecksumAddress], mnem
         await f.write(f'Key: {key.hex()}, Address: {address}, Mnemonic: {mnemonic}\n')
 
 
+async def list_balance(file_path, address, balance):
+    async with aiofiles.open(file_path, 'a+') as f:
+        await f.write(f'address: {address}, balance: {balance}\n')
+
+
 def is_file_empty(file_path):
     return os.path.getsize(file_path) == 0
 
@@ -78,4 +83,4 @@ if __name__ == '__main__':
     Account.enable_unaudited_hdwallet_features()
     # 使用 asyncio 运行异步主函数
     append = True
-    asyncio.run(batch(append, 7))
+    asyncio.run(batch(append, 9))

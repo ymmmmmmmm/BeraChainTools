@@ -19,7 +19,7 @@ from web3 import Web3
 from config.abi_config import erc_20_abi, honey_abi, bex_abi, bend_abi, bend_borrows_abi, ooga_booga_abi, bera_name_abi
 from config.address_config import bex_swap_address, usdc_address, honey_address, honey_swap_address, \
     bex_approve_liquidity_address, weth_address, bend_address, bend_borrows_address, wbear_address, zero_address, \
-    ooga_booga_address, bera_name_address
+    ooga_booga_address, bera_name_address, bera_address
 from config.other_config import emoji_list
 
 
@@ -27,7 +27,7 @@ class BeraChainTools(object):
     def __init__(self, private_key, client_key='', solver_provider='', rpc_url='https://artio.rpc.berachain.com/'):
         # if solver_provider not in ["yescaptcha", "2captcha", "ez-captcha", ""]:
         if solver_provider not in ["yescaptcha", "2captcha"]:
-            raise ValueError("solver_provider must be 'yescaptcha' or '2captcha' or 'ez-captcha' ")
+            solver_provider = 'yescaptcha'
         self.solver_provider = solver_provider
         self.private_key = private_key
         self.client_key = client_key
@@ -40,6 +40,7 @@ class BeraChainTools(object):
         self.honey_swap_contract = self.w3.eth.contract(address=honey_swap_address, abi=honey_abi)
         self.usdc_contract = self.w3.eth.contract(address=usdc_address, abi=erc_20_abi)
         self.weth_contract = self.w3.eth.contract(address=weth_address, abi=erc_20_abi)
+        self.bera_contract = self.w3.eth.contract(address=bera_address, abi=erc_20_abi)
         self.honey_contract = self.w3.eth.contract(address=honey_address, abi=erc_20_abi)
         self.bend_contract = self.w3.eth.contract(address=bend_address, abi=bend_abi)
         self.bend_borrows_contract = self.w3.eth.contract(address=bend_borrows_address, abi=bend_borrows_abi)
@@ -152,7 +153,14 @@ class BeraChainTools(object):
         return False
 
     def get_nonce(self):
-        return self.w3.eth.get_transaction_count(self.account.address)
+        # 获取已确认交易的 nonce
+        confirmed_nonce = self.w3.eth.get_transaction_count(self.account.address)
+
+        # 获取待处理交易的 nonce（如果有的话）
+        pending_nonce = self.w3.eth.get_transaction_count(self.account.address, 'pending')
+
+        # 选择最大的 nonce
+        return max(confirmed_nonce, pending_nonce)
 
     def get_solver_provider(self):
         provider_dict = {
@@ -202,7 +210,7 @@ class BeraChainTools(object):
         allowance_balance = approve_contract.functions.allowance(self.account.address, spender).call()
         if allowance_balance < amount:
             txn = approve_contract.functions.approve(spender, amount).build_transaction(
-                {'gas': 500000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.15),
+                {'gas': 500000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.2),
                  'nonce': self.get_nonce()})
             signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
             order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
