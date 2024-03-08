@@ -2,16 +2,17 @@
 # Time     :2024/1/22 00:36
 # Author   :ym
 # File     :bera_tools.py
+import inspect
 import json
 import random
 import time
 from typing import Union
-import asyncio
 
 import requests
 from eth_account import Account
 from eth_typing import Address, ChecksumAddress
 from faker import Faker
+from loguru import logger
 from requests import Response
 from solcx import compile_source, set_solc_version
 from web3 import Web3
@@ -153,12 +154,15 @@ class BeraChainTools(object):
         return False
 
     def get_nonce(self):
+        method_stack = inspect.stack()
+        pre_method = method_stack[1].function
+
         # 获取已确认交易的 nonce
         confirmed_nonce = self.w3.eth.get_transaction_count(self.account.address)
 
         # 获取待处理交易的 nonce（如果有的话）
         pending_nonce = self.w3.eth.get_transaction_count(self.account.address, 'pending')
-
+        # logger.info(f'pre_method: {pre_method}, confirmed_nonce: {confirmed_nonce}, pending_nonce: {pending_nonce}')
         # 选择最大的 nonce
         return max(confirmed_nonce, pending_nonce)
 

@@ -13,6 +13,7 @@ def mint_honey(account):
     logger.debug(f'approve usdc -> {approve_result}')
     # 使用usdc mint honey
     usdc_balance = bera.usdc_contract.functions.balanceOf(account.address).call()
+    logger.debug(f'usdc_balance balance -> {usdc_balance}')
     mint_result = bera.honey_mint(int(usdc_balance * 0.5))
     logger.debug(f'mint honey with usdc -> {mint_result}')
 
@@ -21,5 +22,6 @@ def mint_honey(account):
     logger.debug(f'approve honey -> {approve_result}')
     # 赎回
     honey_balance = bera.honey_contract.functions.balanceOf(account.address).call()
+    logger.debug(f'honey balance -> {approve_result}')
     redeem_result = bera.honey_redeem(int(honey_balance * 0.5))
     logger.debug(f'honey_redeem honey -> {redeem_result}')

@@ -27,7 +27,7 @@ def read_address_from_file(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
         for line in lines:
-            address_list.append(line)
+            address_list.append(line.strip())
     return address_list
 
 
@@ -47,6 +47,11 @@ class Wallet(object):
         self.private_key = private_key
         self.address = address
         self.mnemonic = mnemonic
+
+
+async def record_address(file_path, address):
+    async with aiofiles.open(file_path, 'a+') as f:
+        await f.write(f'{address}\n')
 
 
 async def write_to_file(key: str, address: Union[Address, ChecksumAddress], mnemonic: str):

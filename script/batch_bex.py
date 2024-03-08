@@ -26,6 +26,7 @@ def batch_swap(account):
     logger.debug(f'bex_approve_liquidity_address usdc_address approve: {approve_result}')
     # bex 增加 usdc 流动性
     usdc_balance = bera.usdc_contract.functions.balanceOf(account.address).call()
+    bera.approve_token(bex_approve_liquidity_address, int("0x" + "f" * 64, 16),  usdc_address)
     result = bera.bex_add_liquidity(int(usdc_balance * 0.5), usdc_pool_liquidity_address, usdc_address)
     logger.debug(f'bex_add_liquidity {result}')
 
@@ -33,9 +34,6 @@ def batch_swap(account):
     approve_result = bera.approve_token(bex_approve_liquidity_address, int("0x" + "f" * 64, 16), weth_address)
     logger.debug(f'bex_approve_liquidity_address weth_address approve: {approve_result}')
     # bex 增加 weth 流动性
-    approve_result = bera.approve_token(bex_approve_liquidity_address, int("0x" + "f" * 64, 16),
-                                        weth_pool_liquidity_address)
-    logger.debug(f'bex_approve_liquidity_address weth_pool_liquidity_address approve: {approve_result}')
     weth_balance = bera.weth_contract.functions.balanceOf(account.address).call()
     result = bera.bex_add_liquidity(int(weth_balance * 0.5), weth_pool_liquidity_address, weth_address)
     logger.debug(result)

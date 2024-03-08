@@ -30,6 +30,29 @@ max_concurrent = 128
 operate = 'claim_faucet'
 
 
+def fibonacci_sequence(n):
+    fib_sequence = [0, 1]
+    while len(fib_sequence) < n:
+        fib_sequence.append(fib_sequence[-1] + fib_sequence[-2])
+    return fib_sequence
+
+
+async def get_ip_with_retry(session, max_retries=3):
+    for attempt in range(1, max_retries + 1):
+        proxies = await get_ip(session)
+        if '提取频率太高，请稍后再试' in proxies:
+            print(f"第 {attempt} 次获取代理 IP 失败：频率太高，请稍后再试。")
+
+            # 计算斐波那契数列作为延迟
+            delay = fibonacci_sequence(attempt)[-1]  # 取斐波那契数列的最后一个值
+            print(f"等待 {delay} 秒后重试...")
+            await asyncio.sleep(delay)
+        else:
+            return proxies
+
+    raise ValueError(f"无法获取代理 IP，已达到最大重试次数。")
+
+
 def timing_decorator(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
@@ -52,7 +75,8 @@ async def claim_faucet(address: Union[Address, ChecksumAddress], google_token: s
                'origin': 'https://artio.faucet.berachain.com', 'pragma': 'no-cache',
                'referer': 'https://artio.faucet.berachain.com/', 'user-agent': user_agent}
     params = {'address': address}
-    proxies = await get_ip(session)
+    proxies = await get_ip_with_retry(session)
+
     # proxies = 'http://utoyhnn8:j7xusAXij07hWKLF_country-Indonesia@proxy.proxy-cheap.com:31112'
     logger.warning(f'ip : {proxies}')
     async with session.post('https://artio-80085-faucet-api-cf.berachain.com/api/claim', headers=headers,
@@ -83,6 +107,7 @@ async def run():
     sem = asyncio.Semaphore(max_concurrent)
     success_addresses = read_address_from_file(record_today_file_path('claim_faucet'))
     claim_list = await filter_wallets(success_addresses)
+    logger.debug(f'address remain to run {len(claim_list)}')
     async with aiohttp.ClientSession() as session:
         async def claim_wrapper(address):
             async with sem:
@@ -96,10 +121,12 @@ async def filter_wallets(success_address: list):
     async with aiofiles.open('./example/account/accounts.txt', 'r') as file:
         lines = await file.readlines()
         origin_wallet = []
+        claim_list = []
         for line in lines:
             wallet = parse_line(line)
             origin_wallet.append(wallet)
-    claim_list = [wallet.address.strip() for wallet in origin_wallet if wallet.address.strip() not in success_address]
+    claim_list = [wallet.address.strip() for wallet in origin_wallet if
+                  wallet.address.strip('\'') not in success_address]
 
     return claim_list
 
@@ -139,6 +166,6 @@ if __name__ == '__main__':
     单进程性能会有瓶颈,大概一分钟能领1000左右,自行套多进程或复制多开
     """
     # 代理获取链接 设置一次提取一个 返回格式为text
-    get_ip_url = 'http://list.rola.vip:8088/user_get_ip_list?token=YKoiKqHxBqM6Fm8b1709609353510&qty=1&country=cl&state=&city=&time=10&format=txt&protocol=http&filter=1'
+    get_ip_url = 'http://list.rola.vip:8088/user_get_ip_list?token=YKoiKqHxBqM6Fm8b1709609353510&qty=1&country=ca&state=&city=&time=10&format=txt&protocol=http&filter=1'
     worker()
     # asyncio.run(record_success_operator_address('2323', '22'))

@@ -12,6 +12,7 @@ def honey_jar(account):
     # 授权
     approve_result = bera.approve_token(ooga_booga_address, int("0x" + "f" * 64, 16), honey_address)
     logger.debug(approve_result)
+    bera.approve_token(ooga_booga_address, int("0x" + "f" * 64, 16), honey_address)
     # 花费4.2 honey mint
     result = bera.honey_jar_mint()
     logger.debug(result)
