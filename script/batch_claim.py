@@ -21,10 +21,6 @@ from script.example.operator_record import record_success_operator_address, reco
 from script.example.wallet_helper import parse_line, read_address_from_file
 
 fake = Faker()
-# 验证平台key
-client_key = '8457ec6e8961f0e44c0b36443e1155145e4b606536032'
-# 目前支持使用yescaptcha 2captcha
-solver_provider = 'yescaptcha'
 # 并发数量
 max_concurrent = 128
 operate = 'claim_faucet'
@@ -76,8 +72,6 @@ async def claim_faucet(address: Union[Address, ChecksumAddress], google_token: s
                'referer': 'https://artio.faucet.berachain.com/', 'user-agent': user_agent}
     params = {'address': address}
     proxies = await get_ip_with_retry(session)
-
-    # proxies = 'http://utoyhnn8:j7xusAXij07hWKLF_country-Indonesia@proxy.proxy-cheap.com:31112'
     logger.warning(f'ip : {proxies}')
     async with session.post('https://artio-80085-faucet-api-cf.berachain.com/api/claim', headers=headers,
                             data=json.dumps(params), params=params, proxy=proxies) as response:
@@ -166,6 +160,6 @@ if __name__ == '__main__':
     单进程性能会有瓶颈,大概一分钟能领1000左右,自行套多进程或复制多开
     """
     # 代理获取链接 设置一次提取一个 返回格式为text
-    get_ip_url = 'http://list.rola.vip:8088/user_get_ip_list?token=YKoiKqHxBqM6Fm8b1709609353510&qty=1&country=ca&state=&city=&time=10&format=txt&protocol=http&filter=1'
+    get_ip_url = '换成你的自己的从https://www.rola-ip.co/获取的动态 ip 获取链接'
     worker()
     # asyncio.run(record_success_operator_address('2323', '22'))

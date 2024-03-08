@@ -8,6 +8,7 @@ from eth_typing import Address, ChecksumAddress
 from loguru import logger
 
 
+# 从文件读取钱包的私钥，地址，助记词
 def read_wallets_from_file(filename):
     accounts_list = []
 
@@ -20,6 +21,7 @@ def read_wallets_from_file(filename):
     return accounts_list
 
 
+# 从文件中读取地址
 def read_address_from_file(file_path):
     address_list = []
     if not os.path.exists(file_path):
@@ -31,6 +33,7 @@ def read_address_from_file(file_path):
     return address_list
 
 
+# 解析生成钱包
 def parse_line(line):
     # 分割每一行的内容
     parts = line.strip().split(', ')
@@ -49,16 +52,19 @@ class Wallet(object):
         self.mnemonic = mnemonic
 
 
+# 单纯记录一个地址
 async def record_address(file_path, address):
     async with aiofiles.open(file_path, 'a+') as f:
         await f.write(f'{address}\n')
 
 
+# 把钱包记录到文件
 async def write_to_file(key: str, address: Union[Address, ChecksumAddress], mnemonic: str):
     async with aiofiles.open(filePath, 'a+') as f:
         await f.write(f'Key: {key.hex()}, Address: {address}, Mnemonic: {mnemonic}\n')
 
 
+# 读取记录的地址和余额
 async def list_balance(file_path, address, balance):
     async with aiofiles.open(file_path, 'a+') as f:
         await f.write(f'address: {address}, balance: {balance}\n')
@@ -68,6 +74,8 @@ def is_file_empty(file_path):
     return os.path.getsize(file_path) == 0
 
 
+# 批量生成带助记词的钱包写入到 "./account/accounts.txt"
+# 注意 append 为 True 为追加，否则只有在文件不存在的时候才能执行生效，不会有覆盖的操作
 async def batch(append: bool, count):
     if (is_file_empty(filePath) or append):
         for _ in range(count):

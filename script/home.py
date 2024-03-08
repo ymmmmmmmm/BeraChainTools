@@ -69,7 +69,6 @@ if __name__ == '__main__':
     # claim_with_tools()
     # 1. load wallets
     wallets = read_wallets_from_file('./example/account/accounts.txt')
-    valid_wallet = None
     balance_record = []
     for wallet in wallets:
         account = Account.from_key(wallet.private_key)

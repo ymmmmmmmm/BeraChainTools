@@ -214,7 +214,7 @@ class BeraChainTools(object):
         allowance_balance = approve_contract.functions.allowance(self.account.address, spender).call()
         if allowance_balance < amount:
             txn = approve_contract.functions.approve(spender, amount).build_transaction(
-                {'gas': 500000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.2),
+                {'gas': 500000 + random.randint(1, 10000), 'gasPrice': int(self.w3.eth.gas_price * 1.15),
                  'nonce': self.get_nonce()})
             signed_txn = self.w3.eth.account.sign_transaction(txn, private_key=self.private_key)
             order_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
