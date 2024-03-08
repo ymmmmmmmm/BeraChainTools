@@ -4,5 +4,6 @@
 /example/example.py
 /private_run/
 /ym_bera.py
-/script/example/account/accounts.txt
-/script/operate-record
+/script/example/account/*
+/script/operate-record/*
+/script/zero_balance/*
