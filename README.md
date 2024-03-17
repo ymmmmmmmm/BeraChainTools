@@ -293,9 +293,6 @@ BeraChainTools！如有任何问题或建议，请随时通过 [GitHub Issues](h
 如果您认可和喜欢 BeraChainTools 的功能和使用体验，我非常欢迎您给项目点个 star。您的 star 是对我的工作的认可和支持，也是我不断改进和提升
 BeraChainTools 的动力！谢谢您的支持！
 
-### 更多疑问请扫码添加好友加入交流群
-![微信图片_20240206233445](https://github.com/ymmmmmmmm/BeraChainTools/assets/51306299/52dfc20e-0f11-4fd8-b732-154f38f9b04a)
-
 
 
 
